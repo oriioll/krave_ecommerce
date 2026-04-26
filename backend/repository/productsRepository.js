@@ -25,7 +25,7 @@ export const selectAllProducts = async () => {
  * @author Oriol Plazas León
  * @since 26/04/2026
  */
-export const selectsProductById = async (id) => {
+export const selectProductById = async (id) => {
     const response = await krave_ecommerce_db_pool.query('SELECT * FROM products WHERE id = $1', [id]);
     return response.rows[0] ?? null;
 }
