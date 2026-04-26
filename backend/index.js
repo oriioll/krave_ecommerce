@@ -51,7 +51,7 @@ app.get("/product/:id", async(req, res) => {
       message: `Cannot get product num: ${req.params.id}`,
       log: e,
       status: "error",
-      code: 500
+      code: 404
     };
     res.status(500).json(error);
     console.log(e);

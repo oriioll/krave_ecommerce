@@ -11,7 +11,9 @@ const krave_ecommerce_db_pool = new Pool({
     host: process.env.DB_HOST,
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    port: 5423
+    database: process.env.DB_NAME,
+    port: process.env.DB_PORT,
+    ssl: { rejectUnauthorized: false }
 });
 
 export default krave_ecommerce_db_pool;
