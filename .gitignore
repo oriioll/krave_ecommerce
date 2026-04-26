@@ -2,3 +2,4 @@ node_modules
 .env
 init.sql
 IMGS_URL.txt
+request.http
