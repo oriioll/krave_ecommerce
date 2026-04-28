@@ -6,7 +6,7 @@
  * @since 27/04/2026
  */
 export const fetchDataByEndpoint = async (endpoint: string) => {
-  const url = "localhost:3000" + endpoint;
+  const url = "http://localhost:3000" + endpoint;
   const response = await fetch(url);
   const data = await response.json();
   if (data.error) {
@@ -26,6 +26,12 @@ export const getProducts = async () => {
   return data;
 };
 
+/**
+ * Gets the product with the id in parameter
+ * @returns The product with that id
+ * @author Oriol Plazas León
+ * @since 27/04/2026
+ */
 export const getProductById = async (id: number) => {
   const data = await fetchDataByEndpoint("/products/" + id);
   return data;

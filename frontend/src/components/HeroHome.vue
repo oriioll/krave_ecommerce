@@ -16,7 +16,7 @@
     align-items: center;
     gap: 1rem;
     width: 100%;
-    height: 70svh;
+    height: 60svh;
     background-color: var(--white);
     overflow: hidden;
 }
@@ -40,6 +40,7 @@ h2 {
     .hero {
         flex-direction: row;
         gap: 30vw;
+        height: 70svh;
     }
 }
 </style>
