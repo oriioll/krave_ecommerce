@@ -1,6 +1,5 @@
 <script setup lang="ts">
 import type { Product } from '@/types/Product';
-import { ref, onMounted } from 'vue';
 const props = defineProps<{
     product: Product
 }>()
@@ -16,7 +15,11 @@ const props = defineProps<{
                 :alt="'Image of product: ' + product.name">
         </div>
         <div class="textInfo">
-            <h5>{{ product.name }}</h5>
+            <h5>
+                <router-link :to="'/product/' + product.slug">
+                    {{ product.name }}
+                </router-link>
+            </h5>
             <p>{{ product.price }}€</p>
         </div>
     </article>
@@ -25,6 +28,9 @@ const props = defineProps<{
 <style scoped>
 article {
     width: 100%;
+    display: flex;
+    flex-direction: column;
+    gap: .75rem;
 }
 
 img {
@@ -64,6 +70,15 @@ img {
 .imgContainer:hover .hoverImg {
     opacity: 1;
     transform: scale(1.05);
+}
+
+.textInfo {
+    padding-left: 1rem;
+}
+
+a {
+    color: var(--black);
+    text-decoration: none;
 }
 
 @media (min-width: 1024px) {}

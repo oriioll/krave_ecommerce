@@ -36,3 +36,14 @@ export const getProductById = async (id: number) => {
   const data = await fetchDataByEndpoint("/products/" + id);
   return data;
 };
+
+/**
+ * Gets the product with the slug in parameter
+ * @returns The product with that slug
+ * @author Oriol Plazas León
+ * @since 29/04/2026
+ */
+export const getProductBySlug = async (slug: string) => {
+  const data = await fetchDataByEndpoint("/product/slug/" + slug);
+  return data;
+};
