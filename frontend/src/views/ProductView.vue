@@ -61,4 +61,15 @@ img {
 p {
     font-size: var(--step-0);
 }
+
+@media (min-width: 800px) {
+    section {
+        flex-direction: row;
+    }
+
+    img {
+        width: 40%;
+        height: auto;
+    }
+}
 </style>

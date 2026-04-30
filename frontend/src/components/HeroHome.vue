@@ -26,7 +26,7 @@ h2 {
     font-weight: 900;
     text-transform: uppercase;
     color: var(--black);
-    font-size: clamp(5rem, 8vw, 12rem);
+    font-size: clamp(4rem, 8vw, 12rem);
     line-height: 0.8;
     letter-spacing: -0.05em;
     pointer-events: none;

@@ -3,7 +3,12 @@
 
 <template>
     <header>
-        <h1 class="logo-style">KRAVE</h1>
+        <h1 class="logo-style">
+            <router-link to="/home">
+                KRAVE
+            </router-link>
+
+        </h1>
     </header>
 </template>
 
@@ -22,6 +27,11 @@ h1 {
     color: var(--white);
     font-size: var(--step-2);
     font-weight: 600;
+}
+
+a {
+    color: var(--white);
+    text-decoration: none;
 }
 
 /* --- DESKTOP (1024px+) --- */

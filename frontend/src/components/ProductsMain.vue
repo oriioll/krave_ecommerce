@@ -43,11 +43,17 @@ onMounted(async () => {
 
 .productsGrid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
     gap: 0.25rem;
 }
 
-@media (min-width: 1024px) {
+@media (min-width: 800px) {
+    .productsGrid {
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    }
+}
+
+@media (min-width: 1000px) {
     .mainProducts {
         padding: 2rem;
     }
