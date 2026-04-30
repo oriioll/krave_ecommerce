@@ -1,3 +1,4 @@
+const BASE_API_URL = import.meta.env.VITE_API_URL;
 /**
  * Fetches local api data to the endpoint passed in parameter
  * @param endpoint The endpoint of the local api you want to fetch
@@ -6,7 +7,7 @@
  * @since 27/04/2026
  */
 export const fetchDataByEndpoint = async (endpoint: string) => {
-  const url = "http://localhost:3000" + endpoint;
+  const url = BASE_API_URL + endpoint;
   const response = await fetch(url);
   const data = await response.json();
   if (data.error) {
