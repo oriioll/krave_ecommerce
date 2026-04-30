@@ -3,6 +3,7 @@ import { getProductBySlug } from '@/services/products.fetcher.ts';
 import { onMounted, ref } from 'vue';
 import { useRoute } from "vue-router";
 import type { Product } from '@/types/Product';
+import Navbar from '@/components/Navbar.vue';
 const product = ref<Product>()
 const route = useRoute();
 const slug = route.params.slug as string;
@@ -23,13 +24,41 @@ onMounted(async () => {
 </script>
 
 <template>
-    <h1>PRODUCTE</h1>
+    <Navbar />
     <section v-if="!error">
-        <h2>{{ product?.name }}</h2>
+        <img v-if="product?.main_image" :src="product.main_image" alt="">
+        <article class="text">
+            <h1>{{ product?.name }}</h1>
+            <p>{{ product?.price }}€</p>
+            <hr>
+            <p>{{ product?.description }}</p>
+        </article>
     </section>
     <section v-else>
         <h1>Error</h1>
     </section>
 </template>
 
-<style scoped></style>
+<style scoped>
+section {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+img {
+    width: 100%;
+    height: auto;
+}
+
+.text {
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+p {
+    font-size: var(--step-0);
+}
+</style>
