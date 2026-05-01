@@ -21,6 +21,9 @@ header {
     gap: 1rem;
     justify-content: space-around;
     align-items: center;
+    top: 0;
+    position: sticky;
+    z-index: 1000;
 }
 
 h1 {

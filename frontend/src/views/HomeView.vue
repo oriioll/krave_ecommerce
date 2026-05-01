@@ -5,7 +5,7 @@ import ProductsMain from '@/components/ProductsMain.vue';
 </script>
 
 <template>
-    <Navbar />
+    <Navbar class="nav" />
     <HeroHome />
     <ProductsMain />
 </template>
