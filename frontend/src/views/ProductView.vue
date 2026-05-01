@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import ProductImages from '@/components/ProductImages.vue';
 import { getProductBySlug } from '@/services/products.fetcher.ts';
 import { onMounted, ref } from 'vue';
 import { useRoute } from "vue-router";
@@ -26,7 +27,7 @@ onMounted(async () => {
 <template>
     <Navbar />
     <section v-if="!error">
-        <img v-if="product?.main_image" :src="product.main_image" alt="">
+        <ProductImages v-if="product" class="img-carroussel" :key="product?.id" :product="product" />
         <article class="text">
             <h1>{{ product?.name }}</h1>
             <p>{{ product?.price }}€</p>
@@ -46,7 +47,7 @@ section {
     flex-direction: column;
 }
 
-img {
+.img-carroussel {
     width: 100%;
     height: auto;
 }
@@ -67,8 +68,8 @@ p {
         flex-direction: row;
     }
 
-    img {
-        width: 40%;
+    .img-carroussel {
+        width: 45%;
         height: auto;
     }
 }
