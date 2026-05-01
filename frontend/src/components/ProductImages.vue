@@ -22,7 +22,7 @@ images.value = [
                 <img v-for="(image, index) in images" :src="image" alt="Image of the product" :id="'image-' + index">
             </div>
             <div class="slider-nav">
-                <a v-for="(image, index) in images" :href="'#image-' + index"></a>
+                <a v-for="(_, index) in images" :href="'#image-' + index"></a>
             </div>
         </div>
     </aside>
