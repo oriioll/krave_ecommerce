@@ -73,7 +73,7 @@ img {
 }
 
 .textInfo {
-    padding-left: 1rem;
+    padding-left: .5rem;
 }
 
 a {
@@ -81,5 +81,10 @@ a {
     text-decoration: none;
 }
 
-@media (min-width: 1024px) {}
+@media (min-width: 1000px) {
+    .textInfo {
+        padding-left: 1rem;
+    }
+
+}
 </style>

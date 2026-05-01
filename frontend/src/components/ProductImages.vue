@@ -54,6 +54,7 @@ img {
     flex: 1 0 100%;
     scroll-snap-align: start;
     object-fit: cover;
+    max-width: 100dvw;
 }
 
 .slider-nav {
