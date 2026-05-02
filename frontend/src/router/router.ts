@@ -18,6 +18,14 @@ const router = createRouter({
       component: ProductView,
     },
   ],
+  scrollBehavior(to, from, savedPosition) {
+    if (savedPosition) {
+      console.log(to, from);
+      return savedPosition;
+    } else {
+      return { top: 0 };
+    }
+  },
 });
 
 export default router;
