@@ -51,7 +51,9 @@ onMounted(async () => {
             <p>{{ product?.price }}€</p>
             <hr>
             <p>{{ product?.description }}</p>
+            <button class="addToCart">Add To Cart</button>
         </article>
+
     </section>
     <section v-else-if="error">
         <h1>Error</h1>
@@ -143,6 +145,19 @@ section.loading {
 
 p {
     font-size: var(--step-0);
+}
+
+.addToCart {
+    font-size: var(--step-0);
+    color: var(--white);
+    font-family: var(--body-font);
+    border: none;
+    outline: none;
+    background-color: var(--black);
+    font-weight: bold;
+    padding: 1rem 0rem;
+    border-radius: 3px;
+    cursor: pointer;
 }
 
 @keyframes shimmer {
