@@ -6,6 +6,11 @@ import {
   selectAllProducts,
   selectProductById,
   selectProductBySlug,
+  insertProduct,
+  deleteProductById,
+  deleteProductBySlug,
+  updateProductBySlug,
+  updateProductById,
 } from "./repository/productsRepository.js";
 
 const app = express();
@@ -76,6 +81,54 @@ app.get("/product/slug/:slug", async (req, res) => {
     const error = {
       error: true,
       message: `Cannot get product: ${req.params.slug}`,
+      log: e,
+      status: "error",
+      code: 404,
+    };
+    res.status(404).json(error);
+    console.log(e);
+  }
+});
+
+app.delete("/delete/slug/:slug", async (req, res) => {
+  try {
+    const slug = req.params.slug;
+    const response = await deleteProductBySlug(slug);
+    if (response) {
+      const feedback = {
+        message: "Product deleted successfully",
+        status: "success",
+      };
+      res.json(feedback);
+    }
+  } catch (e) {
+    const error = {
+      error: true,
+      message: `Cannot delete product: ${req.params.slug}`,
+      log: e,
+      status: "error",
+      code: 404,
+    };
+    res.status(404).json(error);
+    console.log(e);
+  }
+});
+
+app.delete("/delete/id/:id", async (req, res) => {
+  try {
+    const slug = req.params.id;
+    const response = await deleteProductById(id);
+    if (response) {
+      const feedback = {
+        message: "Product deleted successfully",
+        status: "success",
+      };
+      res.json(feedback);
+    }
+  } catch (e) {
+    const error = {
+      error: true,
+      message: `Cannot delete product: ${req.params.id}`,
       log: e,
       status: "error",
       code: 404,
