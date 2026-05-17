@@ -45,7 +45,7 @@ app.get("/products", async (req, res) => {
   }
 });
 
-app.get("/product/:id", async (req, res) => {
+app.get("/products/:id", async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (id < 0) {
@@ -69,7 +69,7 @@ app.get("/product/:id", async (req, res) => {
   }
 });
 
-app.get("/product/slug/:slug", async (req, res) => {
+app.get("/products/slug/:slug", async (req, res) => {
   try {
     const slug = req.params.slug;
     const data = await selectProductBySlug(slug);
@@ -90,7 +90,7 @@ app.get("/product/slug/:slug", async (req, res) => {
   }
 });
 
-app.delete("/delete/slug/:slug", async (req, res) => {
+app.delete("/products/slug/:slug", async (req, res) => {
   try {
     const slug = req.params.slug;
     const response = await deleteProductBySlug(slug);
@@ -114,7 +114,7 @@ app.delete("/delete/slug/:slug", async (req, res) => {
   }
 });
 
-app.delete("/delete/id/:id", async (req, res) => {
+app.delete("/products/:id", async (req, res) => {
   try {
     const slug = req.params.id;
     const response = await deleteProductById(id);
@@ -129,6 +129,30 @@ app.delete("/delete/id/:id", async (req, res) => {
     const error = {
       error: true,
       message: `Cannot delete product: ${req.params.id}`,
+      log: e,
+      status: "error",
+      code: 404,
+    };
+    res.status(404).json(error);
+    console.log(e);
+  }
+});
+
+app.post("/products", async (req, res) => {
+  try {
+    const product = req.body;
+    const response = await insertProduct(product);
+    if (response) {
+      const feedback = {
+        message: "Product created successfully",
+        status: "success",
+      };
+      res.json(feedback);
+    }
+  } catch (e) {
+    const error = {
+      error: true,
+      message: `Cannot create product: ${req.body.name}`,
       log: e,
       status: "error",
       code: 404,
