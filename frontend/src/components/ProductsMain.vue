@@ -58,7 +58,7 @@ onMounted(async () => {
             </article>
         </section>
         <section v-else-if="!error && !isLoading" class="productsGrid">
-            <ProductCard v-for="p in products" :key="p.id" :product="p" />
+            <ProductCard v-for="p in products" :key="p.id!" :product="p" />
             <br>
         </section>
         <section v-else class="error">

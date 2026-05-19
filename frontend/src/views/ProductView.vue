@@ -45,7 +45,7 @@ onMounted(async () => {
         </article>
     </section>
     <section v-else-if="!error">
-        <ProductImages v-if="product" class="img-carroussel" :key="product?.id" :product="product" />
+        <ProductImages v-if="product" class="img-carroussel" :key="product?.id!" :product="product" />
         <article class="text">
             <h1>{{ product?.name }}</h1>
             <p>{{ product?.price }}€</p>
