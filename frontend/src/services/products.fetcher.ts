@@ -51,6 +51,13 @@ export const getProductBySlug = async (slug: string) => {
   return data;
 };
 
+/**
+ * Posts a product to the local api
+ * @param product The product to post
+ * @returns True if the product was posted successfully
+ * @author Oriol Plazas León
+ * @since 19/05/2026
+ */
 export const postProduct = async (product: Product) => {
   const url = BASE_API_URL + "/products";
   const success = await fetch(url, {
@@ -68,6 +75,13 @@ export const postProduct = async (product: Product) => {
   return true;
 };
 
+/**
+ * Deletes the product with the id in parameter
+ * @param id The id of the product to delete
+ * @returns True if the product was deleted successfully
+ * @author Oriol Plazas León
+ * @since 19/05/2026
+ */
 export const deleteProductById = async (id: number) => {
   const url = BASE_API_URL + "/products/" + id;
   const success = await fetch(url, {
@@ -80,6 +94,13 @@ export const deleteProductById = async (id: number) => {
   return true;
 };
 
+/**
+ * Deletes the product with the slug in parameter
+ * @param slug The slug of the product to delete
+ * @returns True if the product was deleted successfully
+ * @author Oriol Plazas León
+ * @since 19/05/2026
+ */
 export const deleteProductBySlug = async (slug: string) => {
   const url = BASE_API_URL + "/products/slug/" + slug;
   const success = await fetch(url, {
