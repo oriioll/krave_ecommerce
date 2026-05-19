@@ -1,3 +1,4 @@
+import type { Product } from "@/types/Product";
 const BASE_API_URL = import.meta.env.VITE_API_URL;
 /**
  * Fetches local api data to the endpoint passed in parameter
@@ -9,6 +10,7 @@ const BASE_API_URL = import.meta.env.VITE_API_URL;
 export const fetchDataByEndpoint = async (endpoint: string) => {
   const url = BASE_API_URL + endpoint;
   const response = await fetch(url);
+  if (!response.ok) throw new Error("Error fetching endpoint: " + endpoint);
   const data = await response.json();
   if (data.error) {
     throw new Error("Cannot fetch api: " + data.error.message);
@@ -47,4 +49,45 @@ export const getProductById = async (id: number) => {
 export const getProductBySlug = async (slug: string) => {
   const data = await fetchDataByEndpoint("/product/slug/" + slug);
   return data;
+};
+
+export const postProduct = async (product: Product) => {
+  const url = BASE_API_URL + "/products";
+  const success = await fetch(url, {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(product),
+  });
+  const response = await success.json();
+  if (!success.ok || response.error) {
+    throw new Error("Cannot post product");
+  }
+  return true;
+};
+
+export const deleteProductById = async (id: number) => {
+  const url = BASE_API_URL + "/products/" + id;
+  const success = await fetch(url, {
+    method: "DELETE",
+  });
+  const response = await success.json();
+  if (!success.ok || response.error) {
+    throw new Error("Cannot delete product");
+  }
+  return true;
+};
+
+export const deleteProductBySlug = async (slug: string) => {
+  const url = BASE_API_URL + "/products/slug/" + slug;
+  const success = await fetch(url, {
+    method: "DELETE",
+  });
+  const response = await success.json();
+  if (!success.ok || response.error) {
+    throw new Error("Cannot delete product");
+  }
+  return true;
 };
