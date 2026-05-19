@@ -1,11 +1,11 @@
-const getFeedback = (op) => {
+export const getFeedback = (op) => {
   return {
     message: "Product" + op + "successfully",
     status: "success",
   };
 };
 
-const getError = (log, op, data) => {
+export const getError = (log, op, data) => {
   return {
     error: true,
     message: `Cannot ${op} ${data}`,
@@ -15,7 +15,7 @@ const getError = (log, op, data) => {
   };
 };
 
-const validateProduct = (p) => {
+export const validateProduct = (p) => {
   if (
     p.name === undefined ||
     p.description === undefined ||
