@@ -13,27 +13,13 @@ import {
   updateProductById,
 } from "./repository/productsRepository.js";
 
+import { getFeedback, getError, validateProduct } from "./util/api.helpers.js";
+
 const app = express();
 app.use(cors());
 app.use(bodyParser.json());
 
 const PORT = 3000;
-const getFeedback = (op) => {
-  return {
-    message: "Product" + op + "successfully",
-    status: "success",
-  };
-};
-
-const getError = (log, op, data) => {
-  return {
-    error: true,
-    message: `Cannot ${op} ${data}`,
-    log: log,
-    status: "error",
-    code: 500,
-  };
-};
 
 app.listen(PORT, () => {
   console.log("Server listing on port " + PORT);
@@ -120,6 +106,9 @@ app.delete("/products/:id", async (req, res) => {
 app.post("/products", async (req, res) => {
   try {
     const product = req.body;
+    if (!validateProduct(product)) {
+      throw new Error("Cannot insert product - NOT VALID");
+    }
     const response = await insertProduct(product);
     if (response) {
       res.json(getFeedback("created"));
@@ -138,6 +127,9 @@ app.put("/products/:id", async (req, res) => {
     if (id < 0 || isNaN(id)) {
       throw new Error("Invalid product id");
     }
+    if (!validateProduct(req.body)) {
+      throw new Error("Cannot update product - NOT VALID");
+    }
     const response = await updateProductById(id, req.body);
     if (!response) {
       return res
@@ -154,6 +146,9 @@ app.put("/products/:id", async (req, res) => {
 app.put("/products/slug/:slug", async (req, res) => {
   try {
     const slug = req.params.slug;
+    if (!validateProduct(req.body)) {
+      throw new Error("Cannot update product - NOT VALID");
+    }
     const response = await updateProductBySlug(slug, req.body);
     if (!response) {
       return res
