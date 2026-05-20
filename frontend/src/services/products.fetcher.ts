@@ -112,3 +112,53 @@ export const deleteProductBySlug = async (slug: string) => {
   }
   return true;
 };
+
+/**
+ * Updates the product with the id in parameter
+ * @param id The id of the product to update
+ * @param product The product data to update
+ * @returns True if the product was updated successfully
+ * @author Oriol Plazas León
+ * @since 20/05/2026
+ */
+export const putProductById = async (id: number, product: Product) => {
+  const url = BASE_API_URL + "/products/" + id;
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(product),
+  });
+  const success = await response.json();
+  if (!response.ok || success.error) {
+    throw new Error("Cannot update product");
+  }
+  return true;
+};
+
+/**
+ * Updates the product with the slug in parameter
+ * @param slug The slug of the product to update
+ * @param product The product data to update
+ * @returns True if the product was updated successfully
+ * @author Oriol Plazas León
+ * @since 20/05/2026
+ */
+export const putProductBySlug = async (slug: string, product: Product) => {
+  const url = BASE_API_URL + "/products/slug/" + slug;
+  const response = await fetch(url, {
+    method: "PUT",
+    headers: {
+      Accept: "application/json",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(product),
+  });
+  const success = await response.json();
+  if (!response.ok || success.error) {
+    throw new Error("Cannot update product");
+  }
+  return true;
+};
