@@ -1,6 +1,6 @@
 export const getFeedback = (op) => {
   return {
-    message: "Product" + op + "successfully",
+    message: "Product " + op + " successfully",
     status: "success",
   };
 };
