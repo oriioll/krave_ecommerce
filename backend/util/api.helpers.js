@@ -24,7 +24,8 @@ export const validateProduct = (p) => {
     p.hover_image === undefined ||
     p.about_image === undefined ||
     p.info_image === undefined ||
-    p.weight === undefined
+    p.weight === undefined ||
+    p.slug === undefined
   ) {
     return false;
   }
