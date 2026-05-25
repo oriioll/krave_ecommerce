@@ -1,6 +1,12 @@
 import express from "express";
+import bcrypt from "bcrypt";
 import bodyParser from "body-parser";
+import jwt from "jsonwebtoken";
+import cookieParser from "cookie-parser";
 import cors from "cors";
+import dotenv from "dotenv";
+dotenv.config();
+
 //import db functions
 import {
   selectAllProducts,
@@ -12,11 +18,16 @@ import {
   updateProductBySlug,
   updateProductById,
 } from "./repository/productsRepository.js";
-
+import { createUser } from "./repository/authRepository.js";
 import { getFeedback, getError, validateProduct } from "./util/api.helpers.js";
 
 const app = express();
-app.use(cors());
+app.use(
+  cors({
+    origin: ["http://localhost:5173", "https://krave-ecommerce.vercel.app"],
+    credentials: true,
+  }),
+);
 app.use(bodyParser.json());
 
 const PORT = 3000;
@@ -159,5 +170,88 @@ app.put("/products/slug/:slug", async (req, res) => {
   } catch (e) {
     res.status(404).json(getError(e, "put", "product with slug"));
     console.log(e);
+  }
+});
+
+/* AUTH */
+export const setUserToken = (res, user_id, mail, days = 7) => {
+  const token = jwt.sign(
+    { user_id: user_id, mail: mail },
+    process.env.JWT_SECRET,
+    { expiresIn: `${days}d` },
+  );
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: true,
+    sameSite: "none",
+    maxAge: days * 24 * 60 * 60 * 1000,
+  });
+  return token;
+};
+app.post("/register", async (req, res) => {
+  try {
+    const { email, pwd } = req.body;
+    if (!email || !pwd) {
+      throw new Error("ERROR: falten dades o son incorrectes");
+    }
+    const hashedPwd = await bcrypt.hash(pwd, 10);
+    const createdUser = createUser(email, hashedPwd);
+    if (createdUser && createdUser.error) {
+      throw new Error(createdUser.message || "Cannot create user");
+    }
+    const token = setUserToken(res, createdUser, email, 100);
+    res.json({
+      status: "success",
+      token: token,
+      message: "User created successfully successfully",
+    });
+  } catch (e) {
+    res.json({ status: "error", message: e.message, error: true });
+  }
+});
+
+app.post("/login", async (req, res) => {
+  try {
+    const { email, pwd } = req.body;
+    if (!email || !pwd) {
+      throw new Error("ERROR: falten dades o son incorrectes");
+    }
+    //const user = getUserByEmail(email);
+    if (!user || user == null) {
+      throw new Error("User not found");
+    }
+    const isPasswordValid = await bcrypt.compare(pwd, user.password);
+    if (!isPasswordValid) {
+      throw new Error("Credencials incorrectes");
+    }
+    const token = setUserToken(res, user.id, user.email, 100);
+    res.json({
+      status: "success",
+      token: token,
+      message: "User logged successfully successfully",
+    });
+  } catch (e) {
+    res.json({ status: "error", message: e.message, error: true });
+  }
+});
+
+app.get("/auth/me", (req, res) => {
+  try {
+    //Llegeixo la possible cookie de l'usuari
+    const token = req.cookies.token;
+    if (!token) {
+      res.status(401).json({ loggedIn: false, message: "No authorized" });
+    } else {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const { user_id, mail } = decoded;
+      res.json({
+        loggedIn: true,
+        message: "User logged in",
+        user: { user_id: user_id, mail: mail },
+      });
+    }
+  } catch (e) {
+    res.json({ status: "error", message: e.message, error: true });
   }
 });
