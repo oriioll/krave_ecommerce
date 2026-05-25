@@ -19,13 +19,19 @@
     height: 60svh;
     background-color: var(--white);
     overflow: hidden;
+    background-image: linear-gradient(to right, rgba(20, 20, 20, 0.8), rgba(20, 20, 20, 0.3)), url('../../public/images/banner.webp');
+    background-size: cover;
+    /* Asegura que la imagen llene el espacio */
+    background-position: center bottom;
+    /* Ajusta qué parte de la imagen se prioriza */
+    background-repeat: no-repeat;
 }
 
 h2 {
     font-family: var(--logo-font);
     font-weight: 900;
     text-transform: uppercase;
-    color: var(--black);
+    color: var(--white);
     font-size: clamp(4rem, 8vw, 12rem);
     line-height: 0.8;
     letter-spacing: -0.05em;
