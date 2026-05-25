@@ -47,7 +47,7 @@ export const getProductById = async (id: number) => {
  * @since 29/04/2026
  */
 export const getProductBySlug = async (slug: string) => {
-  const data = await fetchDataByEndpoint("/product/slug/" + slug);
+  const data = await fetchDataByEndpoint("/products/slug/" + slug);
   return data;
 };
 
