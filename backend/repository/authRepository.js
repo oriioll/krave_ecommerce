@@ -9,3 +9,13 @@ export const createUser = async (email, pwd, name) => {
   );
   return true;
 };
+
+export const getUserByEmail = async (email) => {
+  const response = await krave_ecommerce_db_pool.query(
+    `
+        SELECT * FROM users WHERE email = $1
+        `,
+    [email],
+  );
+  return response.rows ?? null;
+};
