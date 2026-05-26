@@ -18,7 +18,7 @@ import {
   updateProductBySlug,
   updateProductById,
 } from "./repository/productsRepository.js";
-import { createUser } from "./repository/authRepository.js";
+import { createUser, getUserByEmail } from "./repository/authRepository.js";
 import { getFeedback, getError, validateProduct } from "./util/api.helpers.js";
 
 const app = express();
@@ -28,6 +28,7 @@ app.use(
     credentials: true,
   }),
 );
+app.use(cookieParser());
 app.use(bodyParser.json());
 
 const PORT = 3000;
@@ -37,13 +38,13 @@ app.listen(PORT, () => {
 });
 
 app.get("/", (req, res) => {
-  res.send("PRODUCTS API");
+  res.status(200).send("PRODUCTS API");
 });
 
 app.get("/products", async (req, res) => {
   try {
     const data = await selectAllProducts();
-    res.json(data);
+    res.status(200).json(data);
   } catch (e) {
     res.status(500).json(getError(e, "get", "products"));
     console.log(e);
@@ -60,7 +61,7 @@ app.get("/products/:id", async (req, res) => {
     if (!data) {
       throw new Error("Product " + id + " Not Found");
     }
-    res.json(data);
+    res.status(200).json(data);
   } catch (e) {
     res.status(404).json(getError(e, "get", "product with id"));
     console.log(e);
@@ -74,7 +75,7 @@ app.get("/products/slug/:slug", async (req, res) => {
     if (!data) {
       throw new Error("Product " + slug + " Not Found");
     }
-    res.json(data);
+    res.status(200).json(data);
   } catch (e) {
     res.status(404).json(getError(e, "get", "product with slug"));
     console.log(e);
@@ -90,7 +91,7 @@ app.delete("/products/slug/:slug", async (req, res) => {
         .status(404)
         .json(getError("Not Found", "delete", "product with slug"));
     }
-    res.json(getFeedback("deleted"));
+    res.status(200).json(getFeedback("deleted"));
   } catch (e) {
     res.status(404).json(getError(e, "delete", "product with slug"));
     console.log(e);
@@ -107,7 +108,7 @@ app.delete("/products/:id", async (req, res) => {
     if (!response) {
       return res.status(404).json(getError("Not Found", "delete", "product"));
     }
-    res.json(getFeedback("deleted"));
+    res.status(200).json(getFeedback("deleted"));
   } catch (e) {
     res.status(404).json(getError(e, "delete", "product with id"));
     console.log(e);
@@ -122,7 +123,7 @@ app.post("/products", async (req, res) => {
     }
     const response = await insertProduct(product);
     if (response) {
-      res.json(getFeedback("created"));
+      res.status(201).json(getFeedback("created"));
     } else {
       throw new Error("Cannot insert product");
     }
@@ -147,7 +148,7 @@ app.put("/products/:id", async (req, res) => {
         .status(404)
         .json(getError("Not Found", "put", "product with id"));
     }
-    res.json(getFeedback("updated"));
+    res.status(200).json(getFeedback("updated"));
   } catch (e) {
     res.status(404).json(getError(e, "put", "product with id"));
     console.log(e);
@@ -166,7 +167,7 @@ app.put("/products/slug/:slug", async (req, res) => {
         .status(404)
         .json(getError("Not Found", "put", "product with slug"));
     }
-    res.json(getFeedback("updated"));
+    res.status(200).json(getFeedback("updated"));
   } catch (e) {
     res.status(404).json(getError(e, "put", "product with slug"));
     console.log(e);
@@ -183,7 +184,7 @@ export const setUserToken = (res, user_id, mail, days = 7) => {
 
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true,
+    secure: false,
     sameSite: "none",
     maxAge: days * 24 * 60 * 60 * 1000,
   });
@@ -196,12 +197,12 @@ app.post("/register", async (req, res) => {
       throw new Error("ERROR: falten dades o son incorrectes");
     }
     const hashedPwd = await bcrypt.hash(pwd, 10);
-    const createdUser = createUser(email, hashedPwd);
+    const createdUser = await createUser(email, hashedPwd);
     if (createdUser && createdUser.error) {
       throw new Error(createdUser.message || "Cannot create user");
     }
     const token = setUserToken(res, createdUser, email, 100);
-    res.json({
+    res.status(201).json({
       status: "success",
       token: token,
       message: "User created successfully successfully",
@@ -217,7 +218,7 @@ app.post("/login", async (req, res) => {
     if (!email || !pwd) {
       throw new Error("ERROR: falten dades o son incorrectes");
     }
-    //const user = getUserByEmail(email);
+    const user = await getUserByEmail(email);
     if (!user || user == null) {
       throw new Error("User not found");
     }
@@ -226,7 +227,7 @@ app.post("/login", async (req, res) => {
       throw new Error("Credencials incorrectes");
     }
     const token = setUserToken(res, user.id, user.email, 100);
-    res.json({
+    res.status(200).json({
       status: "success",
       token: token,
       message: "User logged successfully successfully",
@@ -245,7 +246,7 @@ app.get("/auth/me", (req, res) => {
     } else {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const { user_id, mail } = decoded;
-      res.json({
+      res.status(200).json({
         loggedIn: true,
         message: "User logged in",
         user: { user_id: user_id, mail: mail },
@@ -253,5 +254,16 @@ app.get("/auth/me", (req, res) => {
     }
   } catch (e) {
     res.json({ status: "error", message: e.message, error: true });
+  }
+});
+
+/* CART */
+app.get("/cart", (req, res) => {
+  const token = req.cookies.token;
+  if (!token) {
+    res.status(401).json({ loggedIn: false, message: "No authorized" });
+  } else {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { user_id } = decoded;
   }
 });
