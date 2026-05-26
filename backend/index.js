@@ -19,6 +19,10 @@ import {
   updateProductById,
 } from "./repository/productsRepository.js";
 import { createUser, getUserByEmail } from "./repository/authRepository.js";
+import {
+  getCartByUserId,
+  getCartItemsByCartId,
+} from "./repository/cartRepository.js";
 import { getFeedback, getError, validateProduct } from "./util/api.helpers.js";
 
 const app = express();
@@ -258,12 +262,37 @@ app.get("/auth/me", (req, res) => {
 });
 
 /* CART */
-app.get("/cart", (req, res) => {
-  const token = req.cookies.token;
-  if (!token) {
-    res.status(401).json({ loggedIn: false, message: "No authorized" });
-  } else {
-    const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    const { user_id } = decoded;
+app.get("/cart", async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      res.status(401).json({ loggedIn: false, message: "No authorized" });
+    } else {
+      const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const { user_id } = decoded;
+      const cart = await getCartByUserId(user_id);
+      if (!cart) {
+        return res.status(404).json({
+          status: "error",
+          message: "Cart not found",
+          error: true,
+        });
+      }
+      const items = await getCartItemsByCartId(cart.id);
+
+      if (!items) {
+        return res.status(500).json({
+          status: "error",
+          message: "Cannot get cart items",
+          error: true,
+        });
+      }
+      return res.status(200).json({
+        status: "success",
+        items: items,
+      });
+    }
+  } catch (e) {
+    res.json({ status: "error", message: e.message, error: true });
   }
 });
