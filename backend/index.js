@@ -48,6 +48,7 @@ app.get("/", (req, res) => {
   res.status(200).send("PRODUCTS API");
 });
 
+/* PRODUCTS */
 app.get("/products", async (req, res) => {
   try {
     const data = await selectAllProducts();
@@ -199,12 +200,12 @@ export const setUserToken = (res, user_id, mail, days = 7) => {
 };
 app.post("/register", async (req, res) => {
   try {
-    const { email, pwd } = req.body;
-    if (!email || !pwd) {
+    const { email, pwd, name } = req.body;
+    if (!email || !pwd || !name) {
       throw new Error("ERROR: falten dades o son incorrectes");
     }
     const hashedPwd = await bcrypt.hash(pwd, 10);
-    const createdUser = await createUser(email, hashedPwd);
+    const createdUser = await createUser(email, hashedPwd, name);
     if (createdUser && createdUser.error) {
       throw new Error(createdUser.message || "Cannot create user");
     }
@@ -215,7 +216,7 @@ app.post("/register", async (req, res) => {
       message: "User created successfully successfully",
     });
   } catch (e) {
-    res.json({ status: "error", message: e.message, error: true });
+    res.status(500).json({ status: "error", message: e.message, error: true });
   }
 });
 
