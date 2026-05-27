@@ -7,7 +7,7 @@ export const createUser = async (email, pwd, name) => {
    VALUES ($1, $2, $3)`,
     [email, pwd, name],
   );
-  return true;
+  return response.rows[0];
 };
 
 export const getUserByEmail = async (email) => {
