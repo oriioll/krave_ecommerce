@@ -15,3 +15,13 @@ export const getCartItemsByCartId = async (cart_id) => {
   );
   return response.rows ?? null;
 };
+
+export const insertProductIntoCart = async (cart_id, product_id) => {
+  const response = await krave_ecommerce_db_pool.query(
+    `INSERT INTO cart_items 
+  (cart_id, product_id)
+   VALUES ($1, $2)`,
+    [cart_id, product_id],
+  );
+  return true;
+};

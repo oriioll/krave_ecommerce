@@ -22,6 +22,7 @@ import { createUser, getUserByEmail } from "./repository/authRepository.js";
 import {
   getCartByUserId,
   getCartItemsByCartId,
+  insertProductIntoCart,
 } from "./repository/cartRepository.js";
 import { getFeedback, getError, validateProduct } from "./util/api.helpers.js";
 
@@ -292,6 +293,44 @@ app.get("/cart", async (req, res) => {
         items: items,
       });
     }
+  } catch (e) {
+    res.json({ status: "error", message: e.message, error: true });
+  }
+});
+
+app.post("/carts/items", async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res
+        .status(401)
+        .json({ loggedIn: false, message: "No authorized" });
+    }
+    const productId = req.body;
+    const valid = productId != null || productId != undefined;
+    if (!productId || !valid) {
+      return res.status(401).json({
+        status: "error",
+        message: "falten dades o son incorrectes",
+        error: true,
+      });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { user_id } = decoded;
+    const cart = await getCartByUserId(user_id);
+    const success = insertProductIntoCart(cart.id, productId);
+    if (!success) {
+      return res
+        .status(404)
+        .json(
+          getError(
+            "Can't insert product into cart (db)",
+            "add",
+            "product to cart",
+          ),
+        );
+    }
+    res.status(200).json(getFeedback("added to cart"));
   } catch (e) {
     res.json({ status: "error", message: e.message, error: true });
   }
