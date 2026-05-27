@@ -33,3 +33,11 @@ export const updateProductQuantity = async (cart_id, product_id, quantity) => {
   );
   return result.rowCount > 0;
 };
+
+export const deleteAllCartItems = async (cart_id) => {
+  const response = await krave_ecommerce_db_pool.query(
+    `DELETE FROM cart_items WHERE cart_id = $1`,
+    [cart_id],
+  );
+  return true;
+};

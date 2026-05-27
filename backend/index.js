@@ -20,6 +20,7 @@ import {
 } from "./repository/productsRepository.js";
 import { createUser, getUserByEmail } from "./repository/authRepository.js";
 import {
+  deleteAllCartItems,
   getCartByUserId,
   getCartItemsByCartId,
   insertProductIntoCart,
@@ -207,7 +208,7 @@ app.post("/register", async (req, res) => {
     if (createdUser && createdUser.error) {
       throw new Error(createdUser.message || "Cannot create user");
     }
-    const token = setUserToken(res, createdUser, email, 100);
+    const token = setUserToken(res, createdUser.id, email, 100);
     res.status(201).json({
       status: "success",
       token: token,
@@ -248,7 +249,9 @@ app.get("/auth/me", (req, res) => {
     //Llegeixo la possible cookie de l'usuari
     const token = req.cookies.token;
     if (!token) {
-      res.status(401).json({ loggedIn: false, message: "No authorized" });
+      return res
+        .status(401)
+        .json({ loggedIn: false, message: "No authorized" });
     } else {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
       const { user_id, mail } = decoded;
@@ -307,19 +310,18 @@ app.post("/cart/items", async (req, res) => {
         .status(401)
         .json({ loggedIn: false, message: "No authorized" });
     }
-    const productId = req.body;
-    const valid = productId != null || productId != undefined;
-    if (!productId || !valid) {
+    const productId = req.body.product_id;
+    if (!productId || isNaN(productId)) {
       return res.status(400).json({
         status: "error",
-        message: "Lack of data or incorrect",
+        message: "Invalid or missing productId",
         error: true,
       });
     }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { user_id } = decoded;
     const cart = await getCartByUserId(user_id);
-    const success = insertProductIntoCart(cart.id, productId);
+    const success = await insertProductIntoCart(cart.id, productId);
     if (!success) {
       return res
         .status(404)
@@ -341,17 +343,23 @@ app.put("/cart/items/:productId", async (req, res) => {
   try {
     const product_id = parseInt(req.params.productId);
     const quantity = parseInt(req.body.quantity);
-    if (isNaN(product_id) || !product_id || quantity < 0 || !quantity) {
+    if (isNaN(product_id) || isNaN(quantity) || quantity < 1) {
       return res.status(400).json({
         status: "error",
         message: "Lack of data or incorrect",
         error: true,
       });
     }
+    const token = req.cookies.token;
+    if (!token) {
+      return res
+        .status(401)
+        .json({ loggedIn: false, message: "No authorized" });
+    }
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     const { user_id } = decoded;
     const cart = await getCartByUserId(user_id);
-    const success = updateProductQuantity(cart.id, product_id, quantity);
+    const success = await updateProductQuantity(cart.id, product_id, quantity);
     if (!success) {
       return res
         .status(404)
@@ -364,6 +372,31 @@ app.put("/cart/items/:productId", async (req, res) => {
         );
     }
     res.status(200).json(getFeedback("quantity modified"));
+  } catch (e) {
+    res.json({ status: "error", message: e.message, error: true });
+  }
+});
+
+app.delete("/cart", async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res
+        .status(401)
+        .json({ loggedIn: false, message: "No authorized" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { user_id } = decoded;
+    const cart = await getCartByUserId(user_id);
+    const success = await deleteAllCartItems(cart.id);
+    if (!success) {
+      return res
+        .status(404)
+        .json(
+          getError("Can't delete cart items", "delete", "products from cart"),
+        );
+    }
+    res.status(200).json(getFeedback("cart emptied"));
   } catch (e) {
     res.json({ status: "error", message: e.message, error: true });
   }
