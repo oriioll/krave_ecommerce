@@ -28,7 +28,7 @@ onMounted(async () => {
     <div class="mainProducts">
         <h2>Products</h2>
         <section v-if="isLoading" class="productsGrid loading">
-            <article v-for="n in 5" class="skeleton-card">
+            <article v-for="_ in 5" class="skeleton-card">
                 <div class="skeleton-image"></div>
                 <div class="skeleton-text">
                     <div class="skeleton-title"></div>

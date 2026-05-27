@@ -1,3 +1,8 @@
+/**
+ * Generates a success feedback response object
+ * @param {string} op - The operation performed (e.g., 'created', 'updated', 'deleted')
+ * @returns {Object} Feedback object with message and success status
+ */
 export const getFeedback = (op) => {
   return {
     message: "Product " + op + " successfully",
@@ -5,6 +10,13 @@ export const getFeedback = (op) => {
   };
 };
 
+/**
+ * Generates an error response object
+ * @param {string} log - The error log message
+ * @param {string} op - The operation that failed
+ * @param {string} data - The data involved in the failed operation
+ * @returns {Object} Error object with error details and status code
+ */
 export const getError = (log, op, data) => {
   return {
     error: true,
@@ -15,6 +27,11 @@ export const getError = (log, op, data) => {
   };
 };
 
+/**
+ * Validates if a product object has all required properties and correct types
+ * @param {Object} p - The product object to validate
+ * @returns {boolean} True if the product is valid, false otherwise
+ */
 export const validateProduct = (p) => {
   if (
     p.name === undefined ||
