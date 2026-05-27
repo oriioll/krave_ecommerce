@@ -23,6 +23,7 @@ import {
   getCartByUserId,
   getCartItemsByCartId,
   insertProductIntoCart,
+  updateProductQuantity,
 } from "./repository/cartRepository.js";
 import { getFeedback, getError, validateProduct } from "./util/api.helpers.js";
 
@@ -298,7 +299,7 @@ app.get("/cart", async (req, res) => {
   }
 });
 
-app.post("/carts/items", async (req, res) => {
+app.post("/cart/items", async (req, res) => {
   try {
     const token = req.cookies.token;
     if (!token) {
@@ -309,9 +310,9 @@ app.post("/carts/items", async (req, res) => {
     const productId = req.body;
     const valid = productId != null || productId != undefined;
     if (!productId || !valid) {
-      return res.status(401).json({
+      return res.status(400).json({
         status: "error",
-        message: "falten dades o son incorrectes",
+        message: "Lack of data or incorrect",
         error: true,
       });
     }
@@ -331,6 +332,38 @@ app.post("/carts/items", async (req, res) => {
         );
     }
     res.status(200).json(getFeedback("added to cart"));
+  } catch (e) {
+    res.json({ status: "error", message: e.message, error: true });
+  }
+});
+
+app.put("/cart/items/:productId", async (req, res) => {
+  try {
+    const product_id = parseInt(req.params.productId);
+    const quantity = parseInt(req.body.quantity);
+    if (isNaN(product_id) || !product_id || quantity < 0 || !quantity) {
+      return res.status(400).json({
+        status: "error",
+        message: "Lack of data or incorrect",
+        error: true,
+      });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { user_id } = decoded;
+    const cart = await getCartByUserId(user_id);
+    const success = updateProductQuantity(cart.id, product_id, quantity);
+    if (!success) {
+      return res
+        .status(404)
+        .json(
+          getError(
+            "Can't update product into cart (db) - product not found in cart",
+            "update",
+            "product in cart",
+          ),
+        );
+    }
+    res.status(200).json(getFeedback("quantity modified"));
   } catch (e) {
     res.json({ status: "error", message: e.message, error: true });
   }
