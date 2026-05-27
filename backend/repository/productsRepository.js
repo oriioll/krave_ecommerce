@@ -77,7 +77,7 @@ export const insertProduct = async (product) => {
       product.slug,
     ],
   );
-  return true;
+  return result.rowCount > 0;
 };
 
 /**
@@ -93,7 +93,7 @@ export const deleteProductById = async (id) => {
     "DELETE FROM products WHERE id = $1",
     [id],
   );
-  return true;
+  return result.rowCount > 0;
 };
 
 /**
@@ -109,7 +109,7 @@ export const deleteProductBySlug = async (slug) => {
     "DELETE FROM products WHERE slug = $1",
     [slug],
   );
-  return true;
+  return result.rowCount > 0;
 };
 
 /**
@@ -139,7 +139,7 @@ export const updateProductBySlug = async (slug, product) => {
       slug,
     ],
   );
-  return true;
+  return result.rowCount > 0;
 };
 
 /**
@@ -169,5 +169,5 @@ export const updateProductById = async (id, product) => {
       id,
     ],
   );
-  return true;
+  return result.rowCount > 0;
 };

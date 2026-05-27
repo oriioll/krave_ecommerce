@@ -23,5 +23,13 @@ export const insertProductIntoCart = async (cart_id, product_id) => {
    VALUES ($1, $2)`,
     [cart_id, product_id],
   );
-  return true;
+  return result.rowCount > 0;
+};
+
+export const updateProductQuantity = async (cart_id, product_id, quantity) => {
+  const response = await krave_ecommerce_db_pool.query(
+    `UPDATE cart_items SET quantity = $1 WHERE cart_id = $2 AND product_id = $3`,
+    [quantity, cart_id, product_id],
+  );
+  return result.rowCount > 0;
 };
