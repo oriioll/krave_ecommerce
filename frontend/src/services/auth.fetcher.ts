@@ -30,3 +30,46 @@ export const registerUser = async (
   }
   return data;
 };
+
+/**
+ * Logs in a user using the API
+ * @param email The email of the user
+ * @param password The password of the user
+ * @returns An object with the status and the token
+ * @throws {Error} If api fetch fails or responds with an error
+ * @author Oriol Plazas León
+ * @since 27/05/2026
+ */
+export const loginUser = async (email: string, password: string) => {
+  const url: string = BASE_API_URL + "/login";
+  const response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({ email: email, pwd: password }),
+    credentials: "include",
+  });
+  const data = await response.json();
+  if (!response.ok || data.error) {
+    throw new Error("Cannot login user: " + data.message);
+  }
+  return data;
+};
+
+/**
+ * Checks if a user is currently logged or not based on token server cookie
+ * @returns An object with the status and the user information if is logged in
+ * @throws {Error} If api fetch fails or responds with an error
+ * @author Oriol Plazas León
+ * @since 27/05/2026
+ */
+export const userIsLogged = async () => {
+  const url: string = BASE_API_URL + "/auth/me";
+  const response = await fetch(url, {
+    method: "GET",
+    credentials: "include",
+  });
+  const data = await response.json();
+  return data;
+};
