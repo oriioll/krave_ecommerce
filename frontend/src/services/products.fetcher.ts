@@ -72,7 +72,7 @@ export const postProduct = async (product: Product) => {
   if (!success.ok || response.error) {
     throw new Error("Cannot post product");
   }
-  return true;
+  return response;
 };
 
 /**
@@ -91,7 +91,7 @@ export const deleteProductById = async (id: number) => {
   if (!success.ok || response.error) {
     throw new Error("Cannot delete product");
   }
-  return true;
+  return response;
 };
 
 /**
@@ -110,7 +110,7 @@ export const deleteProductBySlug = async (slug: string) => {
   if (!success.ok || response.error) {
     throw new Error("Cannot delete product");
   }
-  return true;
+  return response;
 };
 
 /**
@@ -135,7 +135,7 @@ export const putProductById = async (id: number, product: Product) => {
   if (!response.ok || success.error) {
     throw new Error("Cannot update product");
   }
-  return true;
+  return response;
 };
 
 /**
@@ -160,5 +160,5 @@ export const putProductBySlug = async (slug: string, product: Product) => {
   if (!response.ok || success.error) {
     throw new Error("Cannot update product");
   }
-  return true;
+  return response;
 };
