@@ -15,7 +15,7 @@ onMounted(async () => {
             throw new Error("No products available")
         }
         products.value = data;
-        isLoading.value = false
+        isLoading.value = false;
     } catch (e: any) {
         isLoading.value = false;
         error.value = true
@@ -28,28 +28,7 @@ onMounted(async () => {
     <div class="mainProducts">
         <h2>Products</h2>
         <section v-if="isLoading" class="productsGrid loading">
-            <article class="skeleton-card">
-                <div class="skeleton-image"></div>
-                <div class="skeleton-text">
-                    <div class="skeleton-title"></div>
-                    <div class="skeleton-price"></div>
-                </div>
-            </article>
-            <article class="skeleton-card">
-                <div class="skeleton-image"></div>
-                <div class="skeleton-text">
-                    <div class="skeleton-title"></div>
-                    <div class="skeleton-price"></div>
-                </div>
-            </article>
-            <article class="skeleton-card">
-                <div class="skeleton-image"></div>
-                <div class="skeleton-text">
-                    <div class="skeleton-title"></div>
-                    <div class="skeleton-price"></div>
-                </div>
-            </article>
-            <article class="skeleton-card">
+            <article v-for="n in 5" class="skeleton-card">
                 <div class="skeleton-image"></div>
                 <div class="skeleton-text">
                     <div class="skeleton-title"></div>
