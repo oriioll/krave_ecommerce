@@ -259,7 +259,7 @@ app.get("/auth/me", (req, res) => {
       res.status(200).json({
         loggedIn: true,
         message: "User logged in",
-        user: { user_id: user_id, mail: mail },
+        user: { user_id: user_id, mail: mail, name: name },
       });
     }
   } catch (e) {
