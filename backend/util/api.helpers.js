@@ -1,3 +1,24 @@
+import jwt from "jsonwebtoken";
+
+/**
+ * Extracts and verifies user information from the JWT token in request cookies
+ * @param {Object} req - Express request object
+ * @returns {Object} Decoded token with user_id and mail
+ * @throws {Error} If token is missing or invalid
+ */
+export const extractUserFromToken = (req) => {
+  const token = req.cookies.token;
+  if (!token) {
+    throw new Error("No authorized");
+  }
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    return decoded;
+  } catch (e) {
+    throw new Error("Invalid or expired token");
+  }
+};
+
 /**
  * Generates a success feedback response object
  * @param {string} op - The operation performed (e.g., 'created', 'updated', 'deleted')
