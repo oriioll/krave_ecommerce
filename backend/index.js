@@ -25,6 +25,7 @@ import {
   getCartItemsByCartId,
   insertProductIntoCart,
   updateProductQuantity,
+  deleteProductFromCart,
 } from "./repository/cartRepository.js";
 import { getFeedback, getError, validateProduct } from "./util/api.helpers.js";
 
@@ -380,6 +381,14 @@ app.put("/cart/items/:productId", async (req, res) => {
 
 app.delete("/cart", async (req, res) => {
   try {
+    const product_id = parseInt(req.params.productId);
+    if (isNaN(product_id)) {
+      return res.status(400).json({
+        status: "error",
+        message: "Lack of data or incorrect",
+        error: true,
+      });
+    }
     const token = req.cookies.token;
     if (!token) {
       return res
@@ -398,6 +407,31 @@ app.delete("/cart", async (req, res) => {
         );
     }
     res.status(200).json(getFeedback("cart emptied"));
+  } catch (e) {
+    res.json({ status: "error", message: e.message, error: true });
+  }
+});
+
+app.delete("/cart/items/:productId", async (req, res) => {
+  try {
+    const token = req.cookies.token;
+    if (!token) {
+      return res
+        .status(401)
+        .json({ loggedIn: false, message: "No authorized" });
+    }
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    const { user_id } = decoded;
+    const cart = await getCartByUserId(user_id);
+    const success = await deleteProductFromCart(cart.id, productId);
+    if (!success) {
+      return res
+        .status(404)
+        .json(
+          getError("Can't delete cart item", "delete", "product from cart"),
+        );
+    }
+    res.status(200).json(getFeedback("product removed from cart"));
   } catch (e) {
     res.json({ status: "error", message: e.message, error: true });
   }

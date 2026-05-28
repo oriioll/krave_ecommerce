@@ -68,7 +68,7 @@ export const updateProductQuantity = async (cart_id, product_id, quantity) => {
 /**
  * Deletes all items from a cart
  * @param {number} cart_id - The ID of the cart
- * @returns {boolean} Always returns true
+ * @returns {boolean} True if the update was successful
  * @author Oriol Plazas León
  * @throws Error if delete fails
  */
@@ -77,5 +77,21 @@ export const deleteAllCartItems = async (cart_id) => {
     `DELETE FROM cart_items WHERE cart_id = $1`,
     [cart_id],
   );
-  return true;
+  return result.rowCount > 0;
+};
+
+/**
+ * Deletes an items from a cart
+ * @param {number} cart_id - The ID of the cart
+ * @param {number} productId - The id of the product
+ * @returns {boolean} True if the update was successful
+ * @author Oriol Plazas León
+ * @throws Error if delete fails
+ */
+export const deleteProductFromCart = async (cart_id, productId) => {
+  const response = await krave_ecommerce_db_pool.query(
+    `DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2`,
+    [cart_id, productId],
+  );
+  return result.rowCount > 0;
 };
