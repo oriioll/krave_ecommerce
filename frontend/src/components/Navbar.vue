@@ -14,14 +14,17 @@ const handleCart = async () => {
     document.body.classList.toggle("lessOpacity")
     try {
         const userLogged = await userIsLogged();
+        //if there isn't any user logged
         if (userLogged.error || userLogged.loggedIn == false) {
             throw new Error("Log in to add products to your cart!")
         }
         const cartData = await getUserCart();
+        //if api fails getting the user cart
         if (cartData.error) {
             throw new Error('Cannot get user cart')
         }
         const items = cartData.items;
+        //if the cart has 0 items - empty
         if (Array.isArray(items) && items.length < 0) {
             throw new Error('Add products to cart!')
         }
@@ -72,7 +75,7 @@ const closeCart = () => {
                 </div>
             </div>
             <article>
-                <h5 v-if="error">{{ errorMsg }}</h5>
+                <h4 v-if="error">{{ errorMsg }}</h4>
                 <div v-else v-for="p in cartItems">
                     <h5>{{ p.name }}</h5>
                 </div>
@@ -132,6 +135,10 @@ a {
     padding: 1rem;
     z-index: 20;
     transition: all .3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    align-items: center;
 }
 
 .top {
