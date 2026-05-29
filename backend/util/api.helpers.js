@@ -9,7 +9,7 @@ import jwt from "jsonwebtoken";
 export const extractUserFromToken = (req) => {
   const token = req.cookies.token;
   if (!token) {
-    throw new Error("No authorized");
+    throw new Error("No authorized - please log in");
   }
   try {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
