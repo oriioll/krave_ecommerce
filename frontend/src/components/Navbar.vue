@@ -46,21 +46,35 @@ const closeCart = () => {
 
 <template>
     <header>
-        <svg xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24">
-            <path fill="var(--white)"
-                d="M4 7a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1m0 5a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1m0 5a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1" />
-        </svg>
+        <aside class="icons icons-left">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="var(--white)"
+                    d="M4 7a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1m0 5a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1m0 5a1 1 0 0 1 1-1h14a1 1 0 1 1 0 2H5a1 1 0 0 1-1-1" />
+            </svg>
+        </aside>
+
         <h1 class="logo-style">
             <router-link to="/home">
                 KRAVE
             </router-link>
         </h1>
-        <svg @click="handleCart" xmlns="http://www.w3.org/2000/svg" width="35" height="35" viewBox="0 0 24 24">
-            <path fill="var(--white)"
-                d="M21.822 7.431A1 1 0 0 0 21 7H7.333L6.179 4.23A1.99 1.99 0 0 0 4.333 3H2v2h2.333l4.744 11.385A1 1 0 0 0 10 17h8c.417 0 .79-.259.937-.648l3-8a1 1 0 0 0-.115-.921" />
-            <circle cx="10.5" cy="19.5" r="1.5" fill="var(--white)" />
-            <circle cx="17.5" cy="19.5" r="1.5" fill="var(--white)" />
-        </svg>
+        <aside class="icons icons-right">
+            <router-link to="/login">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="var(--white)"
+                    class="svg icon icon-tabler icons-tabler-filled icon-tabler-user">
+                    <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                    <path d="M12 2a5 5 0 1 1 -5 5l.005 -.217a5 5 0 0 1 4.995 -4.783z" />
+                    <path d="M14 14a5 5 0 0 1 5 5v1a2 2 0 0 1 -2 2h-10a2 2 0 0 1 -2 -2v-1a5 5 0 0 1 5 -5h4z" />
+                </svg>
+            </router-link>
+            <svg @click="handleCart" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+                <path fill="var(--white)"
+                    d="M21.822 7.431A1 1 0 0 0 21 7H7.333L6.179 4.23A1.99 1.99 0 0 0 4.333 3H2v2h2.333l4.744 11.385A1 1 0 0 0 10 17h8c.417 0 .79-.259.937-.648l3-8a1 1 0 0 0-.115-.921" />
+                <circle cx="10.5" cy="19.5" r="1.5" fill="var(--white)" />
+                <circle cx="17.5" cy="19.5" r="1.5" fill="var(--white)" />
+            </svg>
+        </aside>
+
         <!--Overlay to blur all the background-->
         <div v-if="cartIsOpen" class="blur-overlay active"></div>
         <div v-if="cartIsOpen" class="shoppingCart">
@@ -91,22 +105,51 @@ header {
     height: 7svh;
     display: flex;
     gap: 1rem;
-    padding: 0 1.25rem;
-    justify-content: space-between;
+    padding: 0rem 0.25rem;
+    justify-content: center;
     align-items: center;
     top: 0;
     position: sticky;
     z-index: 1000;
+    position: relative;
 }
 
-svg {
-    height: 25px;
-    width: 25px;
+.icons {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 1rem;
+    padding: 1rem;
+    position: absolute;
+}
+
+.icons-left {
+    left: 0.25rem;
+}
+
+.icons-right {
+    right: 0.25rem;
+}
+
+.logo-style {
+    flex: 0 0 auto;
+    text-align: center;
+}
+
+svg,
+.svg {
+    height: 20px;
+    width: 20px;
     transition: all .3s ease;
 }
 
 svg:hover {
     cursor: pointer;
+}
+
+.top svg {
+    height: 24px;
+    width: 24px;
 }
 
 h1 {
@@ -170,9 +213,15 @@ a {
         padding: 0 2rem;
     }
 
-    svg {
-        height: 35px;
-        width: 35px;
+    svg,
+    .svg {
+        height: 28px;
+        width: 28px;
+    }
+
+    .top svg {
+        height: 28px;
+        width: 28px;
     }
 }
 </style>
