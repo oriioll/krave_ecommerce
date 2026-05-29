@@ -1,6 +1,8 @@
 import { createRouter, createWebHistory } from "vue-router";
 import HomeView from "../views/HomeView.vue";
 import ProductView from "@/views/ProductView.vue";
+import LoginView from "@/views/LoginView.vue";
+import RegisterView from "@/views/RegisterView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -16,6 +18,14 @@ const router = createRouter({
     {
       path: "/product/:slug",
       component: ProductView,
+    },
+    {
+      path: "/login",
+      component: LoginView,
+    },
+    {
+      path: "/register",
+      component: RegisterView,
     },
   ],
   scrollBehavior(to, from, savedPosition) {
