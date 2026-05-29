@@ -196,9 +196,11 @@ export const setUserToken = (res, user_id, mail, days = 7) => {
     { expiresIn: `${days}d` },
   );
 
+  //verify if req is sent from production or dev
+  const isProd = process.env.NODE_ENV === "production";
   res.cookie("token", token, {
     httpOnly: true,
-    secure: true,
+    secure: isProd,
     sameSite: "none",
     maxAge: days * 24 * 60 * 60 * 1000,
   });
@@ -212,9 +214,10 @@ app.post("/register", async (req, res) => {
     }
     const hashedPwd = await bcrypt.hash(pwd, 10);
     const createdUser = await createUser(email, hashedPwd, name);
-    if (createdUser && createdUser.error) {
-      throw new Error(createdUser.message || "Cannot create user");
+    if (!createdUser) {
+      throw new Error("User could not be created (maybe email already exists)");
     }
+
     const token = setUserToken(res, createdUser.id, email, 100);
     res.status(201).json({
       status: "success",
