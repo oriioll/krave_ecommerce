@@ -13,7 +13,8 @@ export const createUser = async (email, pwd, name) => {
   const response = await krave_ecommerce_db_pool.query(
     `INSERT INTO users 
     (email, password, name)
-   VALUES ($1, $2, $3)`,
+   VALUES ($1, $2, $3)
+   RETURNING *`,
     [email, pwd, name],
   );
   return response.rows[0];
