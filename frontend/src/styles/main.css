@@ -17,6 +17,7 @@
     --error: #FF2A42;
     --warning: #FFD600;
     --text-muted: #6B7280;
+    --light-gray: #c7c7c7c5;
     --black: #09090B;
     --white: #FFFFFF;
     --step--2: clamp(0.69rem, 0.67rem + 0.11vw, 0.75rem);
@@ -115,6 +116,11 @@ button {
     font-weight: bold;
     border-radius: 3px;
     cursor: pointer;
+}
+
+.errorMsg {
+    font-weight: bold;
+    color: var(--error);
 }
 
 .logo-style {
