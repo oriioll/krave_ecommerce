@@ -9,8 +9,12 @@ let cartIsOpen: Ref<Boolean> = ref(false);
 let error: Ref<Boolean> = ref(false);
 let errorMsg: Ref<string> = ref('');
 let cartItems: Ref<ProductQuant[]> = ref([])
+/**
+ * Handles all the cart system and logic when is open
+ */
 const handleCart = async () => {
     cartIsOpen.value = !cartIsOpen.value
+    document.body.style.overflow = "hidden";
     document.body.classList.toggle("lessOpacity")
     try {
         const userLogged = await userIsLogged();
@@ -30,8 +34,13 @@ const handleCart = async () => {
         }
         cartItems.value = []
         items.forEach(async (item: CartItem) => {
+            //api returns product_id and quantity - for each product_id, get its full product and push it to a products array
             const product = await getProductById(item.product_id)
-            cartItems.value.push(product)
+            cartItems.value.push({
+                quantity: item.quantity,
+                //add to the products array the quantity and the product info
+                ...product
+            })
         });
     } catch (e: any) {
         error.value = true;
@@ -40,6 +49,7 @@ const handleCart = async () => {
 }
 
 const closeCart = () => {
+    document.body.style.overflow = "";
     cartIsOpen.value = false
 }
 </script>
@@ -92,6 +102,7 @@ const closeCart = () => {
                 <h4 v-if="error">{{ errorMsg }}</h4>
                 <div v-else v-for="p in cartItems">
                     <h5>{{ p.name }}</h5>
+                    <p>{{ p.quantity }}</p>
                 </div>
             </article>
         </div>
