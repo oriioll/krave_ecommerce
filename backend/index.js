@@ -198,12 +198,14 @@ export const setUserToken = (res, user_id, mail, days = 7) => {
 
   //verify if req is sent from production or dev
   const isProd = process.env.NODE_ENV === "production";
+
   res.cookie("token", token, {
     httpOnly: true,
     secure: isProd,
-    sameSite: "none",
+    sameSite: isProd ? "none" : "lax", //depends if is hosted on production or not, configures secure if both front + back are https, and sameSite tu lax if http with both localhost
     maxAge: days * 24 * 60 * 60 * 1000,
   });
+
   return token;
 };
 app.post("/register", async (req, res) => {
