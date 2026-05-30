@@ -22,7 +22,7 @@ export const validateEmail = (email: string): boolean => {
 export const validatePassword = (pwd: string): boolean => {
   const trimmed = pwd.trim();
   // At least 8 chars, one letter, one number
-  const regex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{8,}$/;
+  const regex = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
   return regex.test(trimmed);
 };
 
