@@ -1,29 +1,59 @@
 <script setup lang="ts">
-import { loginUser, userIsLogged } from '@/services/auth.fetcher.ts';
-import { onMounted, ref, type Ref } from 'vue';
-import { useRoute } from "vue-router";
+import { loginUser } from '@/services/auth.fetcher.ts';
+import { ref, type Ref } from 'vue';
 import OnlyLogoNavbar from '@/components/OnlyLogoNavbar.vue';
-const route = useRoute();
+import { validateEmail } from '@/util/validators.ts';
+import router from '@/router/router';
 const error: Ref<boolean> = ref(false)
 const errorMsg: Ref<string> = ref('')
 const isLoading: Ref<boolean> = ref(false)
 const email: Ref<string> = ref('')
 const password: Ref<string> = ref('')
-onMounted(async () => {
+
+
+/**
+ * Handles the login form submit validating the data and logging the user
+ * @author Oriol Plazas León
+ * @since 30/05/2026
+ */
+const handleLogin = async () => {
     try {
+        //reset aux error variables
+        error.value = false;
         isLoading.value = true
-        error.value = false
-        //const data = await getProductBySlug(slug);
-        // if (!data) {
-        throw new Error("Product not found");
-        //}
-        isLoading.value = false
+        //if there are blank spaces
+        if (!email.value.trim() || !password.value.trim()) {
+            error.value = true
+            errorMsg.value = "Please fill all the fields."
+            isLoading.value = false
+            return
+        }
+        const emailIsValid = validateEmail(email.value);
+        if (!emailIsValid) {
+            //If email format isn't valid
+            error.value = true;
+            errorMsg.value = 'Please enter a valid email address.'
+            isLoading.value = false
+            return
+        }
+        const data = await loginUser(email.value, password.value)
+        if (data.error) {
+            //If email or password are incorrect
+            error.value = true;
+            errorMsg.value = 'Invalid email or password.'
+            isLoading.value = false
+            return
+        }
+        //if login is successfull
+        router.push("/home")
     } catch (e: any) {
-        isLoading.value = false;
-        console.log(e)
+        //any other error
         error.value = true;
+        errorMsg.value = 'Cannot sign in user, try again.'
+        isLoading.value = false
     }
-})
+}
+
 </script>
 
 <template>
@@ -33,7 +63,7 @@ onMounted(async () => {
             <h2>Welcome back!</h2>
             <p>Please enter your details</p>
         </article>
-        <form novalidate>
+        <form novalidate @submit.prevent="handleLogin">
             <div class="formSection">
                 <label for="email">Email address</label>
                 <input type="email" name="email" id="name" v-model="email">
@@ -43,7 +73,23 @@ onMounted(async () => {
                 <input type="password" name="password" id="password" v-model="password">
             </div>
             <p v-if="error" class="error">{{ errorMsg }}</p>
-            <button type="submit" class="submitBtn">Sign In</button>
+            <button v-if="!isLoading" type="submit" class="submitBtn">Sign In</button>
+            <button v-else type="submit" class="submitBtn"><svg xmlns="http://www.w3.org/2000/svg" width="30"
+                    height="30" viewBox="0 0 24 24">
+                    <g fill="none" stroke="var(--white)" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2">
+                        <path stroke-dasharray="18" d="M12 3c4.97 0 9 4.03 9 9">
+                            <animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="18;0" />
+                            <animateTransform attributeName="transform" dur="1s" repeatCount="indefinite" type="rotate"
+                                values="0 12 12;360 12 12" />
+                        </path>
+                        <path stroke-dasharray="60"
+                            d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"
+                            opacity=".3">
+                            <animate fill="freeze" attributeName="stroke-dashoffset" dur="1s" values="60;0" />
+                        </path>
+                    </g>
+                </svg></button>
             <p>Don't have an account? <router-link to="/register" class="link">Sign up</router-link></p>
         </form>
     </main>
@@ -111,18 +157,5 @@ input {
     font-size: var(--step-0);
 }
 
-@media (min-width: 800px) {
-
-
-    input {
-        background-color: transparent;
-        border-radius: 3px;
-        border: solid 1px var(--black);
-        color: var(--black);
-        font-size: var(--step-0);
-        font-family: var(--body-font);
-        outline: none;
-        padding: .2rem .25rem;
-    }
-}
+@media (min-width: 800px) {}
 </style>
