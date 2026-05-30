@@ -45,7 +45,7 @@ export const insertProductIntoCart = async (cart_id, product_id) => {
    VALUES ($1, $2)`,
     [cart_id, product_id],
   );
-  return result.rowCount > 0;
+  return response.rowCount > 0;
 };
 
 /**
