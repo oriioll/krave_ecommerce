@@ -34,5 +34,5 @@ export const getUserByEmail = async (email) => {
         `,
     [email],
   );
-  return response.rows ?? null;
+  return response.rows[0] ?? null;
 };
