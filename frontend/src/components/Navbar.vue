@@ -1,19 +1,22 @@
 <script setup lang="ts">
+import { useUIStore } from '@/stores/cartUi.store'
 import { getUserCart } from '@/services/cart.fetcher';
 import { ref, type Ref } from 'vue';
 import type { ProductQuant } from '@/types/ProductQuant.ts';
-import type { CartItem } from '@/types/CartItem';
 import { getProductById } from '@/services/products.fetcher';
 import { userIsLogged } from '@/services/auth.fetcher';
-let cartIsOpen: Ref<Boolean> = ref(false);
 let error: Ref<Boolean> = ref(false);
 let errorMsg: Ref<string> = ref('');
 let cartItems: Ref<ProductQuant[]> = ref([])
+const ui = useUIStore()
 /**
  * Handles all the cart system and logic when is open
  */
 const handleCart = async () => {
-    cartIsOpen.value = !cartIsOpen.value
+    if (ui.isCartOpen) {
+        closeCart()
+        return
+    }
     document.body.style.overflow = "hidden";
     document.body.classList.toggle("lessOpacity")
     try {
@@ -32,8 +35,8 @@ const handleCart = async () => {
         if (Array.isArray(items) && items.length < 0) {
             throw new Error('Add products to cart!')
         }
-        cartItems.value = []
-        items.forEach(async (item: CartItem) => {
+        cartItems.value = [];
+        for (const item of items) {
             //api returns product_id and quantity - for each product_id, get its full product and push it to a products array
             const product = await getProductById(item.product_id)
             cartItems.value.push({
@@ -41,7 +44,9 @@ const handleCart = async () => {
                 //add to the products array the quantity and the product info
                 ...product
             })
-        });
+        }
+
+        ui.openCart()
     } catch (e: any) {
         error.value = true;
         errorMsg.value = e.message
@@ -50,7 +55,7 @@ const handleCart = async () => {
 
 const closeCart = () => {
     document.body.style.overflow = "";
-    cartIsOpen.value = false
+    ui.closeCart();
 }
 </script>
 
@@ -86,8 +91,8 @@ const closeCart = () => {
         </aside>
 
         <!--Overlay to blur all the background-->
-        <div v-if="cartIsOpen" class="blur-overlay active"></div>
-        <div v-if="cartIsOpen" class="shoppingCart">
+        <div v-if="ui.isCartOpen" class="blur-overlay active"></div>
+        <div v-if="ui.isCartOpen" class="shoppingCart">
             <div class="top">
                 <svg @click="closeCart" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
                     <path fill="var(--black)"
@@ -98,11 +103,30 @@ const closeCart = () => {
                     <!--Auxiliar div to fill the cart heading-->
                 </div>
             </div>
-            <article>
+            <article class="cartProducts">
                 <h4 v-if="error">{{ errorMsg }}</h4>
-                <div v-else v-for="p in cartItems">
-                    <h5>{{ p.name }}</h5>
-                    <p>{{ p.quantity }}</p>
+                <div class="cartItem" v-else v-for="p in cartItems">
+                    <img class="cartImg" :src="p.main_image!" :alt="p.name">
+                    <div class="midCart">
+                        <h5>{{ p.name }}</h5>
+                        <div class="quantityManager">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-minus">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                            <p>{{ p.quantity }}</p>
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
+                                <path stroke="none" d="M0 0h24v24H0z" fill="none" />
+                                <path d="M12 5l0 14" />
+                                <path d="M5 12l14 0" />
+                            </svg>
+                        </div>
+                    </div>
+                    <p><strong>{{ p.price }}€</strong></p>
                 </div>
             </article>
         </div>
@@ -174,6 +198,7 @@ a {
     text-decoration: none;
 }
 
+/*CART STYLES */
 .shoppingCart {
     /*Full height */
     height: 100dvh;
@@ -202,6 +227,12 @@ a {
     justify-content: space-between;
 }
 
+.cartProducts {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+
 .blur-overlay {
     position: fixed;
     inset: 0;
@@ -217,6 +248,49 @@ a {
     background: rgba(0, 0, 0, 0.2);
 }
 
+/*CART ITEM STYLES */
+
+.cartItem {
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.cartImg {
+    width: 20%;
+    height: auto;
+    object-fit: cover;
+    aspect-ratio: 3/4;
+}
+
+.midCart {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1rem;
+}
+
+.quantityManager {
+    max-width: 150px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    gap: 2.5rem;
+    align-items: center;
+    border: solid 1px var(--light-gray);
+    padding: .5rem 0;
+}
+
+.quantityManager p {
+    margin: 0;
+    font-weight: bold;
+}
+
+.quantityManager svg {
+    height: 20px;
+    width: 20px;
+}
 
 /* --- DESKTOP (1024px+) --- */
 @media (min-width: 1024px) {
