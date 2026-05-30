@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { registerUser, userIsLogged } from '@/services/auth.fetcher.ts';
-import { onMounted, ref, type Ref } from 'vue';
+import { registerUser } from '@/services/auth.fetcher.ts';
+import { ref, type Ref } from 'vue';
 import { useRoute } from "vue-router";
 import OnlyLogoNavbar from '@/components/OnlyLogoNavbar.vue';
 const route = useRoute();
