@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { registerUser } from '@/services/auth.fetcher.ts';
 import { ref, type Ref } from 'vue';
-import { useRoute } from "vue-router";
 import OnlyLogoNavbar from '@/components/OnlyLogoNavbar.vue';
-const route = useRoute();
 const error: Ref<boolean> = ref(false)
 const errorMsg: Ref<string> = ref('')
 const isLoading: Ref<boolean> = ref(false)
