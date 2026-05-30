@@ -25,9 +25,6 @@ export const registerUser = async (
     credentials: "include",
   });
   const data = await response.json();
-  if (!response.ok || data.error) {
-    throw new Error("Cannot register user: " + data.message);
-  }
   return data;
 };
 
@@ -51,9 +48,6 @@ export const loginUser = async (email: string, password: string) => {
     credentials: "include",
   });
   const data = await response.json();
-  if (!response.ok || data.error) {
-    throw new Error("Cannot login user: " + data.message);
-  }
   return data;
 };
 
