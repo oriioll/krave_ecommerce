@@ -189,6 +189,14 @@ app.put("/products/slug/:slug", async (req, res) => {
 });
 
 /* AUTH */
+/**
+ * Generates a jwt based on user_id and mail and sets a cookie in server with the token,
+ * @param {*} res The response express endpoint parameter to set the cookie
+ * @param {*} user_id the user_id to identify token
+ * @param {*} mail The user email in token
+ * @param {*} days In how many days will the token expire
+ * @returns The jwt created
+ */
 export const setUserToken = (res, user_id, mail, days = 7) => {
   const token = jwt.sign(
     { user_id: user_id, mail: mail },
@@ -256,6 +264,21 @@ app.post("/login", async (req, res) => {
   }
 });
 
+app.post("/logout", async (req, res) => {
+  try {
+    const isProd = process.env.NODE_ENV === "production";
+    res.clearCookie("token", {
+      httpOnly: true,
+      secure: isProd,
+      sameSite: isProd ? "none" : "lax", //depends if is hosted on production or not, configures secure if both front + back are https, and sameSite tu lax if http with both localhost
+      path: "/",
+    });
+    res.json({ status: "success", message: "Logged out successfully" });
+  } catch (e) {
+    res.json({ status: "error", message: e.message, error: true });
+  }
+});
+
 app.get("/auth/me", (req, res) => {
   try {
     const { user_id, mail } = extractUserFromToken(req);
@@ -277,21 +300,26 @@ app.get("/cart", async (req, res) => {
     if (!cart) {
       return res.status(404).json({
         status: "error",
-        message: "Cart not found",
+        message: "Cart not found for user id: " + user_id,
         error: true,
       });
     }
     const items = await getCartItemsByCartId(cart.id);
-
     if (!items) {
       return res.status(500).json({
         status: "error",
-        message: "Cannot get cart items",
+        message:
+          "Cannot get cart items for user id: " +
+          user_id +
+          "and for cart id: " +
+          cart.id,
         error: true,
       });
     }
     return res.status(200).json({
       status: "success",
+      user_id: user_id,
+      cart_id: cart.id,
       items: items,
     });
   } catch (e) {
