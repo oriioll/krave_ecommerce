@@ -12,7 +12,7 @@ export const getCartByUserId = async (user_id) => {
     "SELECT * FROM CART WHERE user_id = $1",
     [user_id],
   );
-  return response.rows ?? null;
+  return response.rows[0] ?? null;
 };
 
 /**
