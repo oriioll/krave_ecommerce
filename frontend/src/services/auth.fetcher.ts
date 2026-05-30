@@ -67,3 +67,20 @@ export const userIsLogged = async () => {
   const data = await response.json();
   return data;
 };
+
+/**
+ * Logs out a user fetching API
+ * @returns An object with the status and feedback message
+ * @throws {Error} If api fetch fails or responds with an error
+ * @author Oriol Plazas León
+ * @since 30/05/2026
+ */
+export const logoutUser = async () => {
+  const url: string = BASE_API_URL + "/logout";
+  const response = await fetch(url, {
+    method: "POST",
+    credentials: "include",
+  });
+  const data = await response.json();
+  return data;
+};
