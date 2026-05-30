@@ -12,9 +12,6 @@ export const fetchDataByEndpoint = async (endpoint: string) => {
   const response = await fetch(url);
   if (!response.ok) throw new Error("Error fetching endpoint: " + endpoint);
   const data = await response.json();
-  if (data.error) {
-    throw new Error("Cannot fetch api: " + data.error.message);
-  }
   return data;
 };
 
@@ -66,12 +63,10 @@ export const postProduct = async (product: Product) => {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify(product),
   });
   const response = await success.json();
-  if (!success.ok || response.error) {
-    throw new Error("Cannot post product");
-  }
   return response;
 };
 
@@ -86,11 +81,9 @@ export const deleteProductById = async (id: number) => {
   const url = BASE_API_URL + "/products/" + id;
   const success = await fetch(url, {
     method: "DELETE",
+    credentials: "include",
   });
   const response = await success.json();
-  if (!success.ok || response.error) {
-    throw new Error("Cannot delete product");
-  }
   return response;
 };
 
@@ -105,11 +98,9 @@ export const deleteProductBySlug = async (slug: string) => {
   const url = BASE_API_URL + "/products/slug/" + slug;
   const success = await fetch(url, {
     method: "DELETE",
+    credentials: "include",
   });
   const response = await success.json();
-  if (!success.ok || response.error) {
-    throw new Error("Cannot delete product");
-  }
   return response;
 };
 
@@ -129,13 +120,11 @@ export const putProductById = async (id: number, product: Product) => {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify(product),
   });
   const success = await response.json();
-  if (!response.ok || success.error) {
-    throw new Error("Cannot update product");
-  }
-  return response;
+  return success;
 };
 
 /**
@@ -154,11 +143,9 @@ export const putProductBySlug = async (slug: string, product: Product) => {
       Accept: "application/json",
       "Content-Type": "application/json",
     },
+    credentials: "include",
     body: JSON.stringify(product),
   });
   const success = await response.json();
-  if (!response.ok || success.error) {
-    throw new Error("Cannot update product");
-  }
-  return response;
+  return success;
 };
