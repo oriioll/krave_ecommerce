@@ -1,62 +1,19 @@
 <script setup lang="ts">
 import { useUIStore } from '@/stores/cartUi.store'
-import { getUserCart } from '@/services/cart.fetcher';
-import { ref, type Ref } from 'vue';
-import type { ProductQuant } from '@/types/ProductQuant.ts';
-import { getProductById } from '@/services/products.fetcher';
-import { userIsLogged } from '@/services/auth.fetcher';
-let error: Ref<Boolean> = ref(false);
-let errorMsg: Ref<string> = ref('');
-let cartItems: Ref<ProductQuant[]> = ref([])
+import { putProductFromCart, deleteItemFromCart } from '@/services/cart.fetcher.ts'
 const ui = useUIStore()
+
 /**
- * Handles all the cart system and logic when is open
+ * Handles opening/closing the cart
  */
 const handleCart = async () => {
     if (ui.isCartOpen) {
-        closeCart()
+        ui.closeCart()
         return
     }
-    document.body.style.overflow = "hidden";
-    document.body.classList.toggle("lessOpacity")
-    try {
-        const userLogged = await userIsLogged();
-        //if there isn't any user logged
-        if (userLogged.error || userLogged.loggedIn == false) {
-            throw new Error("Log in to add products to your cart!")
-        }
-        const cartData = await getUserCart();
-        //if api fails getting the user cart
-        if (cartData.error) {
-            throw new Error('Cannot get user cart')
-        }
-        const items = cartData.items;
-        //if the cart has 0 items - empty
-        if (Array.isArray(items) && items.length < 0) {
-            throw new Error('Add products to cart!')
-        }
-        cartItems.value = [];
-        for (const item of items) {
-            //api returns product_id and quantity - for each product_id, get its full product and push it to a products array
-            const product = await getProductById(item.product_id)
-            cartItems.value.push({
-                quantity: item.quantity,
-                //add to the products array the quantity and the product info
-                ...product
-            })
-        }
-
-        ui.openCart()
-    } catch (e: any) {
-        error.value = true;
-        errorMsg.value = e.message
-    }
+    await ui.openCart()
 }
 
-const closeCart = () => {
-    document.body.style.overflow = "";
-    ui.closeCart();
-}
 </script>
 
 <template>
@@ -94,7 +51,8 @@ const closeCart = () => {
         <div v-if="ui.isCartOpen" class="blur-overlay active"></div>
         <div v-if="ui.isCartOpen" class="shoppingCart">
             <div class="top">
-                <svg @click="closeCart" xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
+                <svg @click="ui.closeCart" xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                    viewBox="0 0 24 24">
                     <path fill="var(--black)"
                         d="M5.293 5.293a1 1 0 0 1 1.414 0L12 10.586l5.293-5.293a1 1 0 1 1 1.414 1.414L13.414 12l5.293 5.293a1 1 0 0 1-1.414 1.414L12 13.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L10.586 12L5.293 6.707a1 1 0 0 1 0-1.414" />
                 </svg>
@@ -104,19 +62,26 @@ const closeCart = () => {
                 </div>
             </div>
             <article class="cartProducts">
-                <h4 v-if="error">{{ errorMsg }}</h4>
-                <div class="cartItem" v-else v-for="p in cartItems">
+                <h4 v-if="ui.cartError">{{ ui.cartErrorMsg }}</h4>
+                <div v-else-if="ui.isCartLoading" class="loadingCart">
+                    <p>Loading cart...</p>
+                </div>
+                <div v-else-if="ui.cartItems.length === 0" class="emptyCart">
+                    <p>Your cart is empty</p>
+                </div>
+                <div class="cartItem" v-else v-for="p in ui.cartItems">
                     <img class="cartImg" :src="p.main_image!" :alt="p.name">
                     <div class="midCart">
                         <h5>{{ p.name }}</h5>
                         <div class="quantityManager">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-                                stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-minus">
+                            <svg @click="ui.reduceCartItem(p.id!!, p.quantity)" xmlns="http://www.w3.org/2000/svg"
+                                width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                                class="icon icon-tabler icons-tabler-outline icon-tabler-minus">
                                 <path stroke="none" d="M0 0h24v24H0z" fill="none" />
                                 <path d="M5 12l14 0" />
                             </svg>
-                            <p>{{ p.quantity }}</p>
+                            <p>{{ p.quantity }} </p>
                             <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
                                 fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
                                 stroke-linejoin="round" class="icon icon-tabler icons-tabler-outline icon-tabler-plus">
@@ -279,7 +244,7 @@ a {
     gap: 2.5rem;
     align-items: center;
     border: solid 1px var(--light-gray);
-    padding: .5rem 0;
+    padding: .5rem 1rem;
 }
 
 .quantityManager p {

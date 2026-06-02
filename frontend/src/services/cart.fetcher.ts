@@ -97,7 +97,7 @@ export const emptyUserCart = async () => {
 export const deleteItemFromCart = async (productId: number) => {
   const url: string = BASE_API_URL + "/cart/items/" + productId;
   const response = await fetch(url, {
-    method: "PUT",
+    method: "DELETE",
     headers: {
       "Content-Type": "application/json",
     },
