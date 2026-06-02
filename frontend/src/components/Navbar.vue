@@ -93,6 +93,13 @@ const handleCart = async () => {
                     </div>
                     <p><strong>{{ p.price }}€</strong></p>
                 </div>
+                <div class="checkout">
+                    <div class="subtotal">
+                        <h5>Total</h5>
+                        <h5>{{ ui.subtotal }}€</h5>
+                    </div>
+                    <button class="checkoutBtn">Checkout</button>
+                </div>
             </article>
         </div>
     </header>
@@ -195,7 +202,27 @@ a {
 .cartProducts {
     display: flex;
     flex-direction: column;
-    gap: .25rem;
+    gap: 5rem;
+}
+
+.checkout {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.subtotal {
+    text-transform: uppercase;
+    width: 100%;
+    font-size: var(--step-1);
+    display: flex;
+    gap: 1rem;
+    justify-content: space-between;
+}
+
+.checkoutBtn {
+    width: 100%;
+    padding: .85rem 0rem;
 }
 
 .blur-overlay {
