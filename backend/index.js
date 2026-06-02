@@ -7,7 +7,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 
-//import db functions
+import { setUserToken } from "./util/api.helpers.js"; //import db functions
 import {
   selectAllProducts,
   selectProductById,
@@ -33,6 +33,7 @@ import {
   validateProduct,
   extractUserFromToken,
 } from "./util/api.helpers.js";
+import { isAdmin } from "./middleware/role.js";
 
 const app = express();
 app.use(
@@ -96,7 +97,7 @@ app.get("/products/slug/:slug", async (req, res) => {
   }
 });
 
-app.delete("/products/slug/:slug", async (req, res) => {
+app.delete("/products/slug/:slug", isAdmin, async (req, res) => {
   try {
     const slug = req.params.slug;
     const response = await deleteProductBySlug(slug);
@@ -112,7 +113,7 @@ app.delete("/products/slug/:slug", async (req, res) => {
   }
 });
 
-app.delete("/products/:id", async (req, res) => {
+app.delete("/products/:id", isAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (id < 0 || isNaN(id)) {
@@ -129,7 +130,7 @@ app.delete("/products/:id", async (req, res) => {
   }
 });
 
-app.post("/products", async (req, res) => {
+app.post("/products", isAdmin, async (req, res) => {
   try {
     const product = req.body;
     if (!validateProduct(product)) {
@@ -147,7 +148,7 @@ app.post("/products", async (req, res) => {
   }
 });
 
-app.put("/products/:id", async (req, res) => {
+app.put("/products/:id", isAdmin, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (id < 0 || isNaN(id)) {
@@ -169,7 +170,7 @@ app.put("/products/:id", async (req, res) => {
   }
 });
 
-app.put("/products/slug/:slug", async (req, res) => {
+app.put("/products/slug/:slug", isAdmin, async (req, res) => {
   try {
     const slug = req.params.slug;
     if (!validateProduct(req.body)) {
@@ -189,33 +190,7 @@ app.put("/products/slug/:slug", async (req, res) => {
 });
 
 /* AUTH */
-/**
- * Generates a jwt based on user_id and mail and sets a cookie in server with the token,
- * @param {*} res The response express endpoint parameter to set the cookie
- * @param {*} user_id the user_id to identify token
- * @param {*} mail The user email in token
- * @param {*} days In how many days will the token expire
- * @returns The jwt created
- */
-export const setUserToken = (res, user_id, mail, days = 7) => {
-  const token = jwt.sign(
-    { user_id: user_id, mail: mail },
-    process.env.JWT_SECRET,
-    { expiresIn: `${days}d` },
-  );
 
-  //verify if req is sent from production or dev
-  const isProd = process.env.NODE_ENV === "production";
-
-  res.cookie("token", token, {
-    httpOnly: true,
-    secure: isProd,
-    sameSite: isProd ? "none" : "lax", //depends if is hosted on production or not, configures secure if both front + back are https, and sameSite tu lax if http with both localhost
-    maxAge: days * 24 * 60 * 60 * 1000,
-  });
-
-  return token;
-};
 app.post("/register", async (req, res) => {
   try {
     const { email, pwd, name } = req.body;
@@ -279,13 +254,14 @@ app.post("/logout", async (req, res) => {
   }
 });
 
-app.get("/auth/me", (req, res) => {
+app.get("/auth/me", async (req, res) => {
   try {
-    const { user_id, mail } = extractUserFromToken(req);
+    const { user_id, mail, role } = extractUserFromToken(req);
+    const user = await getUserByEmail(mail);
     res.status(200).json({
       loggedIn: true,
       message: "User logged in",
-      user: { user_id: user_id, mail: mail },
+      user: { user_id: user_id, mail: mail, name: user.name, role: role },
     });
   } catch (e) {
     res.status(401).json({ status: "error", message: e.message, error: true });
