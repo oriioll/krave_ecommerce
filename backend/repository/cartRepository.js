@@ -62,7 +62,7 @@ export const updateProductQuantity = async (cart_id, product_id, quantity) => {
     `UPDATE cart_items SET quantity = $1 WHERE cart_id = $2 AND product_id = $3`,
     [quantity, cart_id, product_id],
   );
-  return result.rowCount > 0;
+  return response.rowCount > 0;
 };
 
 /**
@@ -77,7 +77,7 @@ export const deleteAllCartItems = async (cart_id) => {
     `DELETE FROM cart_items WHERE cart_id = $1`,
     [cart_id],
   );
-  return result.rowCount > 0;
+  return response.rowCount > 0;
 };
 
 /**
@@ -93,5 +93,5 @@ export const deleteProductFromCart = async (cart_id, productId) => {
     `DELETE FROM cart_items WHERE cart_id = $1 AND product_id = $2`,
     [cart_id, productId],
   );
-  return result.rowCount > 0;
+  return response.rowCount > 0;
 };

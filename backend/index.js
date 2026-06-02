@@ -410,7 +410,8 @@ app.delete("/cart/items/:productId", async (req, res) => {
   try {
     const { user_id } = extractUserFromToken(req);
     const cart = await getCartByUserId(user_id);
-    const success = await deleteProductFromCart(cart.id, productId);
+    const product_id = parseInt(req.params.productId);
+    const success = await deleteProductFromCart(cart.id, product_id);
     if (!success) {
       return res
         .status(404)
