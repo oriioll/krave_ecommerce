@@ -1,8 +1,26 @@
 <script setup lang="ts">
 import router from '@/router/router';
-import { logoutUser } from '@/services/auth.fetcher.ts';
-import { ref, type Ref } from 'vue'
-const errorMsg: Ref<String> = ref('')
+import { logoutUser, userIsLogged } from '@/services/auth.fetcher.ts';
+import { onMounted, ref, type Ref } from 'vue'
+import OnlyLogoNavbar from '@/components/OnlyLogoNavbar.vue';
+
+const error: Ref<boolean> = ref(false)
+const errorMsg: Ref<string> = ref('')
+const username: Ref<string> = ref('')
+onMounted(async () => {
+    try {
+        const userData = await userIsLogged();
+        if (userData.error) {
+            throw new Error('cannot get user data')
+        }
+        username.value = userData.user.name
+    } catch (e: any) {
+        error.value = true
+        errorMsg.value = 'Cannot get profile info, try again later'
+    }
+
+})
+
 const handleLogout = async () => {
     const data = await logoutUser();
     if (data.error) {
@@ -16,8 +34,13 @@ const handleLogout = async () => {
 <template>
     <OnlyLogoNavbar />
     <main>
-        <button @click="handleLogout">LOG OUT</button>
-        <p class="errorMsg">{{ errorMsg }}</p>
+        <h1>Hi, {{ username }}</h1>
+
+        <div>
+            <button @click="handleLogout">LOG OUT</button>
+            <p class="errorMsg">{{ errorMsg }}</p>
+        </div>
+
     </main>
 </template>
 
@@ -28,60 +51,27 @@ main {
     justify-content: center;
     width: 800px;
     max-width: 100%;
-    gap: .25rem;
+    gap: 5rem;
     /*CENTER DIV HORIZONTALLY*/
     margin: auto;
     padding: 1rem;
     height: 80svh;
 }
 
-.headings {
-    display: flex;
-    flex-direction: column;
-    gap: .25rem;
-}
-
-.headings p {
-    color: var(--text-muted);
-}
-
-form {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-}
-
-.formSection {
-    display: flex;
-    flex-direction: column;
-    gap: .5rem;
-}
-
-label {
-    margin: 0;
-    padding: 0;
-    font-weight: bold;
-}
 
 button {
+    width: 100%;
     padding: .5rem 0rem;
 }
 
-a,
-.link {
-    color: var(--accent-color)
-}
+
 
 .error {
     color: var(--error);
     font-weight: bold;
 }
 
-p,
-label,
-input {
-    font-size: var(--step-0);
-}
+
 
 @media (min-width: 800px) {}
 </style>
