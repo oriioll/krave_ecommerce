@@ -30,7 +30,7 @@ export const createUser = async (email, pwd, name) => {
 export const getUserByEmail = async (email) => {
   const response = await krave_ecommerce_db_pool.query(
     `
-        SELECT * FROM users WHERE email = $1
+        SELECT u.*, r.name AS role_name FROM users u JOIN roles r ON r.id = u.role_id WHERE email = $1
         `,
     [email],
   );

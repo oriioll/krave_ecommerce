@@ -202,8 +202,7 @@ app.post("/register", async (req, res) => {
     if (!createdUser) {
       throw new Error("User could not be created (maybe email already exists)");
     }
-
-    const token = setUserToken(res, createdUser.id, email, 100);
+    const token = setUserToken(res, createdUser.id, email, "customer", 100);
     res.status(201).json({
       status: "success",
       token: token,
@@ -228,7 +227,7 @@ app.post("/login", async (req, res) => {
     if (!isPasswordValid) {
       throw new Error("Credencials incorrectes");
     }
-    const token = setUserToken(res, user.id, user.email, 100);
+    const token = setUserToken(res, user.id, user.email, user.role_name, 100);
     res.status(200).json({
       status: "success",
       token: token,
