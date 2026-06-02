@@ -90,6 +90,7 @@ export const validateProduct = (p) => {
  * @param {*} res The response express endpoint parameter to set the cookie
  * @param {*} user_id the user_id to identify token
  * @param {*} mail The user email in token
+ * @param {*} mail The role of the user
  * @param {*} days In how many days will the token expire
  * @returns The jwt created
  */
