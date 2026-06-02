@@ -5,7 +5,7 @@ import { onMounted, ref } from 'vue';
 import { useRoute } from "vue-router";
 import type { Product } from '@/types/Product.ts';
 import Navbar from '@/components/Navbar.vue';
-import { postProductIntoCart } from '@/services/cart.fetcher.ts';
+import { getUserCart, postProductIntoCart, putProductFromCart } from '@/services/cart.fetcher.ts';
 import { userIsLogged } from '@/services/auth.fetcher.ts';
 import router from '@/router/router';
 import { useUIStore } from '@/stores/cartUi.store.ts'
@@ -53,11 +53,23 @@ const addProductToCard = async (product_id: number) => {
             return router.push("/login")
         }
         errorMsg.value = '';
-        const data = await postProductIntoCart(product_id);
-        if (data.error) {
-            throw new Error('cannot add product to cart')
+        const cartProducts = await getUserCart();
+        if (cartProducts.error) {
+            throw new Error('Cannot get usre cart products')
         }
-        cartUiStore.openCart();
+        const productToAddInCart = cartProducts.items.find((p: any) => p.product_id == product_id)
+        if (!productToAddInCart) {
+            const data = await postProductIntoCart(product_id);
+            if (data.error) {
+                throw new Error('cannot add product to cart')
+            }
+        } else {
+            const data = await putProductFromCart(product_id, productToAddInCart.quantity + 1)
+            if (data.error) {
+                throw new Error(data.message)
+            }
+        }
+        await cartUiStore.openCart();
         cartIsLoading.value = false
     } catch (e: any) {
         cartIsLoading.value = false;
