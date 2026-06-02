@@ -61,12 +61,12 @@ const handleCart = async () => {
                 </div>
             </div>
             <article class="cartProducts">
-                <h4 v-if="ui.cartError">{{ ui.cartErrorMsg }}</h4>
+                <p class="muted" v-if="ui.cartError">{{ ui.cartErrorMsg }}</p>
                 <div v-else-if="ui.isCartLoading" class="loadingCart">
-                    <p>Loading cart...</p>
+                    <p class="muted">Loading cart...</p>
                 </div>
                 <div v-else-if="ui.cartItems.length === 0" class="emptyCart">
-                    <p>Your cart is empty</p>
+                    <p class="muted">Your cart is empty</p>
                 </div>
                 <div class="cartItem" v-else v-for="p in ui.cartItems">
                     <img class="cartImg" :src="p.main_image!" :alt="p.name">
@@ -223,6 +223,10 @@ a {
 .checkoutBtn {
     width: 100%;
     padding: .85rem 0rem;
+}
+
+.muted {
+    color: var(--text-muted);
 }
 
 .blur-overlay {
