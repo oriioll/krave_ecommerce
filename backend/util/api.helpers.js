@@ -84,3 +84,31 @@ export const validateProduct = (p) => {
   }
   return true;
 };
+
+/**
+ * Generates a jwt based on user_id and mail and sets a cookie in server with the token,
+ * @param {*} res The response express endpoint parameter to set the cookie
+ * @param {*} user_id the user_id to identify token
+ * @param {*} mail The user email in token
+ * @param {*} days In how many days will the token expire
+ * @returns The jwt created
+ */
+export const setUserToken = (res, user_id, mail, role, days = 7) => {
+  const token = jwt.sign(
+    { user_id: user_id, mail: mail, role: role },
+    process.env.JWT_SECRET,
+    { expiresIn: `${days}d` },
+  );
+
+  //verify if req is sent from production or dev
+  const isProd = process.env.NODE_ENV === "production";
+
+  res.cookie("token", token, {
+    httpOnly: true,
+    secure: isProd,
+    sameSite: isProd ? "none" : "lax", //depends if is hosted on production or not, configures secure if both front + back are https, and sameSite tu lax if http with both localhost
+    maxAge: days * 24 * 60 * 60 * 1000,
+  });
+
+  return token;
+};
