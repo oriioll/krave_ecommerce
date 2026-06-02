@@ -52,13 +52,11 @@ router.beforeEach(async (to, _from, next) => {
   if (authData.loggedIn === true) {
     //if user is logged and tries to enter to login or register
     if (guestAuthOnly.includes(to.path)) {
-      //goes /home -> change to /profile
       return next("/profile");
     }
   } else {
     //if user isn't logged and tries to enter to profile
     if (loggedOnly.includes(to.path)) {
-      //goes /home -> change to /profile
       return next("/home");
     }
   }
