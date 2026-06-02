@@ -234,7 +234,6 @@ GET /products/slug/:slug
 ```http
 POST /products
 Content-Type: application/json
-Authorization: Bearer <admin_token>
 
 {
     "name": "New Supplement",
@@ -259,7 +258,6 @@ Authorization: Bearer <admin_token>
 ```http
 PUT /products/:id
 Content-Type: application/json
-Authorization: Bearer <admin_token>
 
 {
     "name": "Updated Product Name",
@@ -280,7 +278,6 @@ Authorization: Bearer <admin_token>
 
 ```http
 DELETE /products/:id
-Authorization: Bearer <admin_token>
 ```
 
 **Response (200 OK):**
@@ -367,7 +364,6 @@ Content-Type: application/json
 
 ```http
 GET /auth/me
-Authorization: Bearer <token>
 ```
 
 **Response (200 OK):**
@@ -410,7 +406,6 @@ POST /logout
 
 ```http
 GET /cart
-Authorization: Bearer <token>
 ```
 
 **Response (200 OK):**
@@ -438,7 +433,6 @@ Authorization: Bearer <token>
 ```http
 POST /cart/items
 Content-Type: application/json
-Authorization: Bearer <token>
 
 {
     "product_id": 1
@@ -459,7 +453,6 @@ Authorization: Bearer <token>
 ```http
 PUT /cart/items/:productId
 Content-Type: application/json
-Authorization: Bearer <token>
 
 {
     "quantity": 3
@@ -479,7 +472,6 @@ Authorization: Bearer <token>
 
 ```http
 DELETE /cart/items/:productId
-Authorization: Bearer <token>
 ```
 
 **Response (200 OK):**
@@ -495,7 +487,6 @@ Authorization: Bearer <token>
 
 ```http
 DELETE /cart
-Authorization: Bearer <token>
 ```
 
 **Response (200 OK):**
