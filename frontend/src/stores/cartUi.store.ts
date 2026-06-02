@@ -15,9 +15,11 @@ export const useUIStore = defineStore("cartUi", () => {
   const cartError = ref(false);
   const cartErrorMsg = ref("");
   const isCartLoading = ref(false);
+  const subtotal = ref(0);
 
   const loadCartItems = async () => {
     try {
+      subtotal.value = 0;
       isCartLoading.value = true;
       cartError.value = false;
       cartErrorMsg.value = "";
@@ -41,7 +43,10 @@ export const useUIStore = defineStore("cartUi", () => {
       //for each item, push it to the cart item array with the quantity
       cartItems.value = [];
       for (const item of items) {
+        //get all product info from its id
         const product = await getProductById(item.product_id);
+        //modify subtotal quantity
+        subtotal.value += product.price * item.quantity;
         cartItems.value.push({
           quantity: item.quantity,
           ...product,
@@ -107,6 +112,7 @@ export const useUIStore = defineStore("cartUi", () => {
     cartError,
     cartErrorMsg,
     isCartLoading,
+    subtotal,
     openCart,
     closeCart,
     loadCartItems,
