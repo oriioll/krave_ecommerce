@@ -1,4 +1,3 @@
-// stores/cartUi.store.ts
 import { defineStore } from "pinia";
 import { ref } from "vue";
 import type { ProductQuant } from "@/types/ProductQuant";
@@ -69,15 +68,16 @@ export const useUIStore = defineStore("cartUi", () => {
     document.body.style.overflow = "";
     document.body.classList.remove("lessOpacity");
   };
-
   const reduceCartItem = async (id: number, currentQuantity: number) => {
+    cartError.value = false;
     const productToRemove = cartItems.value.find((p) => p.id == id);
-    if (productToRemove?.quantity! <= 1) {
+    if (!productToRemove) return;
+
+    if (productToRemove.quantity <= 1) {
       const deleted = await deleteItemFromCart(id);
       if (deleted.error) {
         cartError.value = true;
-        cartErrorMsg.value =
-          "Cannot delete product from cart" + deleted.message;
+        cartErrorMsg.value = "Cannot delete product from cart";
         return;
       }
     } else {
@@ -88,7 +88,18 @@ export const useUIStore = defineStore("cartUi", () => {
         return;
       }
     }
-    await openCart();
+    await loadCartItems();
+  };
+
+  const increaseCartItem = async (id: number, currentQuantity: number) => {
+    cartError.value = false;
+    const modified = await putProductFromCart(id, currentQuantity + 1);
+    if (modified.error) {
+      cartError.value = true;
+      cartErrorMsg.value = "Cannot modify product from cart";
+      return;
+    }
+    await loadCartItems();
   };
   return {
     isCartOpen,
@@ -100,5 +111,6 @@ export const useUIStore = defineStore("cartUi", () => {
     closeCart,
     loadCartItems,
     reduceCartItem,
+    increaseCartItem,
   };
 });
