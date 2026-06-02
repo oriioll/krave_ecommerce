@@ -60,6 +60,7 @@ const handleCart = async () => {
                     <!--Auxiliar div to fill the cart heading-->
                 </div>
             </div>
+            <hr>
             <article class="cartProducts">
                 <p class="muted" v-if="ui.cartError">{{ ui.cartErrorMsg }}</p>
                 <div v-else-if="ui.isCartLoading" class="loadingCart">
@@ -118,7 +119,6 @@ header {
     top: 0;
     position: sticky;
     z-index: 1000;
-    position: relative;
 }
 
 .icons {
@@ -171,6 +171,10 @@ a {
 }
 
 /*CART STYLES */
+hr {
+    width: 80%;
+}
+
 .shoppingCart {
     /*Full height */
     height: 100dvh;
