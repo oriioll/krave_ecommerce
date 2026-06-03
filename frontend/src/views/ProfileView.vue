@@ -15,7 +15,7 @@ onMounted(async () => {
         if (userData.error) {
             throw new Error('cannot get user data')
         }
-        role.value = userData.role
+        role.value = userData.user.role
         username.value = userData.user.name
     } catch (e: any) {
         error.value = true
