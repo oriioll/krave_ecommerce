@@ -99,8 +99,8 @@ const handleRegister = async () => {
             </div>
             <p v-if="error" class="error">{{ errorMsg }}</p>
             <button v-if="!isLoading" type="submit" class="submitBtn">Sign Up</button>
-            <button v-else type="submit" class="submitBtn"><svg xmlns="http://www.w3.org/2000/svg" width="30"
-                    height="30" viewBox="0 0 24 24">
+            <button v-else class="submitBtn"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                    viewBox="0 0 24 24">
                     <g fill="none" stroke="var(--white)" stroke-linecap="round" stroke-linejoin="round"
                         stroke-width="2">
                         <path stroke-dasharray="18" d="M12 3c4.97 0 9 4.03 9 9">
