@@ -2,7 +2,8 @@
 import router from '@/router/router';
 import { logoutUser, userIsLogged } from '@/services/auth.fetcher.ts';
 import { onMounted, ref, type Ref } from 'vue'
-import OnlyLogoNavbar from '@/components/OnlyLogoNavbar.vue';
+import Navbar from '@/components/Navbar.vue';
+import { goToLink } from '@/util/helpers';
 
 const error: Ref<boolean> = ref(false)
 const errorMsg: Ref<string> = ref('')
@@ -34,7 +35,7 @@ const handleLogout = async () => {
 </script>
 
 <template>
-    <OnlyLogoNavbar />
+    <Navbar />
     <main>
         <h1>Hi, {{ username }}</h1>
         <hr>
@@ -42,7 +43,7 @@ const handleLogout = async () => {
         <section class="actionsSection" v-if="role != 'customer'">
             <h2>Quick actions</h2>
             <div class="actions">
-                <div class="actionCard createProducts">
+                <div @click="goToLink('/create-product')" class="actionCard createProducts">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
                         <g fill="none" stroke="#000000" stroke-linecap="round" stroke-width="1.5">
                             <path stroke-linejoin="round"
@@ -54,7 +55,7 @@ const handleLogout = async () => {
                     </svg>
                     <h5><strong>Add Product</strong></h5>
                 </div>
-                <div class="actionCard manageProducts">
+                <div @click="goToLink('/manage-products')" class="actionCard manageProducts">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
                         <path fill="#000000"
                             d="m7 17.013l4.413-.015l9.632-9.54c.378-.378.586-.88.586-1.414s-.208-1.036-.586-1.414l-1.586-1.586c-.756-.756-2.075-.752-2.825-.003L7 12.583zM18.045 4.458l1.589 1.583l-1.597 1.582l-1.586-1.585zM9 13.417l6.03-5.973l1.586 1.586l-6.029 5.971L9 15.006z" />
@@ -64,7 +65,7 @@ const handleLogout = async () => {
                     <h5><strong>Manage Products</strong></h5>
                 </div>
                 <!--Only if user is an admin can manage users-->
-                <div v-if="role == 'admin'" class="actionCard manageUsers">
+                <div @click="goToLink('/manage-users')" v-if="role == 'admin'" class="actionCard manageUsers">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
                         <path fill="none" stroke="#000000" stroke-linecap="round" stroke-linejoin="round"
                             stroke-width="2"
