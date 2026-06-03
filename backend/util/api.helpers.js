@@ -54,34 +54,33 @@ export const getError = (log, op, data) => {
  * @returns {boolean} True if the product is valid, false otherwise
  */
 export const validateProduct = (p) => {
+  // If there isnt an object in param
+  if (!p) return false;
+  //Validate obligatory fields
+  if (!p.name || !p.description || !p.slug || !p.main_image) return false;
   if (
-    p.name === undefined ||
-    p.description === undefined ||
     p.price === undefined ||
-    p.main_image === undefined ||
-    p.hover_image === undefined ||
-    p.about_image === undefined ||
-    p.info_image === undefined ||
+    p.price === null ||
     p.weight === undefined ||
-    p.slug === undefined
-  ) {
+    p.weight === null
+  )
     return false;
-  }
+
+  //Validate data types
   if (
     typeof p.name !== "string" ||
     typeof p.description !== "string" ||
-    typeof p.main_image !== "string" ||
-    typeof p.hover_image !== "string"
-  ) {
+    typeof p.slug !== "string" ||
+    typeof p.main_image !== "string"
+  )
     return false;
-  }
-  if (
-    typeof p.price !== "number" ||
-    p.price <= 0 ||
-    typeof p.weight !== "number"
-  ) {
-    return false;
-  }
+  if (typeof p.price !== "number" || typeof p.weight !== "number") return false;
+  //Validate bussines logic
+  if (p.price < 0 || p.weight < 0) return false;
+  //Validate data types of optional fields
+  if (p.hover_image && typeof p.hover_image !== "string") return false;
+  if (p.about_image && typeof p.about_image !== "string") return false;
+  if (p.info_image && typeof p.info_image !== "string") return false;
   return true;
 };
 
