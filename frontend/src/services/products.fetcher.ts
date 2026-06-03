@@ -57,7 +57,7 @@ export const getProductBySlug = async (slug: string) => {
  */
 export const postProduct = async (product: Product) => {
   const url = BASE_API_URL + "/products";
-  const success = await fetch(url, {
+  const response = await fetch(url, {
     method: "POST",
     headers: {
       Accept: "application/json",
@@ -66,8 +66,8 @@ export const postProduct = async (product: Product) => {
     credentials: "include",
     body: JSON.stringify(product),
   });
-  const response = await success.json();
-  return response;
+  const data = await response.json();
+  return data;
 };
 
 /**
