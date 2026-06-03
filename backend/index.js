@@ -18,7 +18,7 @@ import {
   updateProductBySlug,
   updateProductById,
 } from "./repository/productsRepository.js";
-import { createUser, getUserByEmail } from "./repository/authRepository.js";
+import { createCustomer, getUserByEmail } from "./repository/authRepository.js";
 import {
   deleteAllCartItems,
   getCartByUserId,
@@ -33,7 +33,7 @@ import {
   validateProduct,
   extractUserFromToken,
 } from "./util/api.helpers.js";
-import { isAdmin } from "./middleware/role.js";
+import { isAdmin, isAdminOrStaff } from "./middleware/role.js";
 
 const app = express();
 app.use(
@@ -97,7 +97,7 @@ app.get("/products/slug/:slug", async (req, res) => {
   }
 });
 
-app.delete("/products/slug/:slug", isAdmin, async (req, res) => {
+app.delete("/products/slug/:slug", isAdminOrStaff, async (req, res) => {
   try {
     const slug = req.params.slug;
     const response = await deleteProductBySlug(slug);
@@ -113,7 +113,7 @@ app.delete("/products/slug/:slug", isAdmin, async (req, res) => {
   }
 });
 
-app.delete("/products/:id", isAdmin, async (req, res) => {
+app.delete("/products/:id", isAdminOrStaff, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (id < 0 || isNaN(id)) {
@@ -130,7 +130,7 @@ app.delete("/products/:id", isAdmin, async (req, res) => {
   }
 });
 
-app.post("/products", isAdmin, async (req, res) => {
+app.post("/products", isAdminOrStaff, async (req, res) => {
   try {
     const product = req.body;
     if (!validateProduct(product)) {
@@ -143,12 +143,12 @@ app.post("/products", isAdmin, async (req, res) => {
       throw new Error("Cannot insert product");
     }
   } catch (e) {
-    res.status(500).json(getError(e, "post", "product"));
+    res.json(getError(e.message, "post", "product"));
     console.log(e);
   }
 });
 
-app.put("/products/:id", isAdmin, async (req, res) => {
+app.put("/products/:id", isAdminOrStaff, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     if (id < 0 || isNaN(id)) {
@@ -170,7 +170,7 @@ app.put("/products/:id", isAdmin, async (req, res) => {
   }
 });
 
-app.put("/products/slug/:slug", isAdmin, async (req, res) => {
+app.put("/products/slug/:slug", isAdminOrStaff, async (req, res) => {
   try {
     const slug = req.params.slug;
     if (!validateProduct(req.body)) {
@@ -198,7 +198,7 @@ app.post("/register", async (req, res) => {
       throw new Error("ERROR: falten dades o son incorrectes");
     }
     const hashedPwd = await bcrypt.hash(pwd, 10);
-    const createdUser = await createUser(email, hashedPwd, name);
+    const createdUser = await createCustomer(email, hashedPwd, name);
     if (!createdUser) {
       throw new Error("User could not be created (maybe email already exists)");
     }
