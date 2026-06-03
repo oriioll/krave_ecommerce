@@ -147,9 +147,13 @@ export const validateSlug = (slug?: string): boolean => {
 
 export const validateUrl = (url: string): boolean => {
   const trimmed = url.trim();
-  const regex = /^[a-z0-9-]+(\.[a-z0-9-]+)+([/?#].*)?$/i;
-
-  return trimmed.length > 0 && regex.test(trimmed);
+  if (trimmed.startsWith("data:image/")) return true;
+  try {
+    const parsedUrl = new URL(trimmed);
+    return parsedUrl.protocol === "http:" || parsedUrl.protocol === "https:";
+  } catch {
+    return false;
+  }
 };
 
 export const handleImagesNulls = (product: Product): Product => {
