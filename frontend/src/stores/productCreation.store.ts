@@ -28,6 +28,7 @@ export const useProductStore = defineStore("createProducts", () => {
       const data = await postProduct(transformedProduct);
       if (data.error) {
         //If api post fails
+        console.log(data.message);
         error.value = true;
         errorMsg.value = "Cannot add product.";
         isLoading.value = false;
