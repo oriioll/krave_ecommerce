@@ -1,3 +1,5 @@
+import type { Product } from "@/types/Product";
+
 /**
  * Validates if an email is valid or not based on regex
  * @param {string} email The email to test
@@ -38,4 +40,128 @@ export const validateName = (name: string): boolean => {
   // Must contain only letters and spaces, at least one letter
   const regex = /^[A-Za-zÀ-ÿ\s]+$/;
   return trimmed.length > 0 && regex.test(trimmed);
+};
+
+/**
+ * Validates if a product has correct values
+ * @param product The product to validate
+ * @returns {Object} { valid: boolean; error: string } If product is valid or not and message
+ * @author Oriol Plazas León
+ * @since 03/06/2026
+ */
+export const validateProduct = (
+  product: Product,
+): { valid: boolean; error: string } => {
+  if (!validateProductName(product.name)) {
+    return {
+      valid: false,
+      error:
+        "Product name must be non-empty and contain only valid characters.",
+    };
+  }
+  if (!validateDescription(product.description)) {
+    return { valid: false, error: "Description must be a non-empty string." };
+  }
+  if (!validatePriceOrWeight(product.price)) {
+    return { valid: false, error: "Price must be a number greater than 0." };
+  }
+  if (!validatePriceOrWeight(product.weight)) {
+    return { valid: false, error: "Weight must be a number greater than 0." };
+  }
+  if (!validateSlug(product.slug)) {
+    return {
+      valid: false,
+      error: "Slug is required and must not contain spaces.",
+    };
+  }
+  if (!validateImage(product.main_image, true)) {
+    return {
+      valid: false,
+      error: "Main image is required and must be a valid URL.",
+    };
+  }
+  if (!validateImage(product.hover_image)) {
+    return {
+      valid: false,
+      error: "Hover image must be a valid URL if provided.",
+    };
+  }
+  if (!validateImage(product.about_image)) {
+    return {
+      valid: false,
+      error: "About image must be a valid URL if provided.",
+    };
+  }
+  if (!validateImage(product.info_image)) {
+    return {
+      valid: false,
+      error: "Info image must be a valid URL if provided.",
+    };
+  }
+  return { valid: true, error: "" };
+};
+
+export const validateImage = (
+  image?: string | null,
+  required = false,
+): boolean => {
+  if (required) {
+    return !!image && validateUrl(image);
+  }
+
+  if (image === null || image === undefined || image.trim() === "") {
+    return true;
+  }
+
+  return validateUrl(image);
+};
+
+export const validatePriceOrWeight = (value?: number | null): boolean => {
+  if (value === null || value === undefined) {
+    return true;
+  }
+
+  return typeof value === "number" && value > 0;
+};
+
+export const validateProductName = (name: string): boolean => {
+  const regex = /^[a-zA-ZÀ-ÿ0-9\s\-()]+$/;
+  return name.trim().length > 0 && regex.test(name);
+};
+
+export const validateDescription = (description?: string | null): boolean => {
+  if (!description) {
+    return true;
+  }
+
+  return description.trim().length > 0;
+};
+
+export const validateSlug = (slug?: string): boolean => {
+  if (!slug) {
+    return false;
+  }
+
+  return !slug.includes(" ");
+};
+
+export const validateUrl = (url: string): boolean => {
+  const trimmed = url.trim();
+  const regex = /^[a-z0-9-]+(\.[a-z0-9-]+)+([/?#].*)?$/i;
+
+  return trimmed.length > 0 && regex.test(trimmed);
+};
+
+export const handleImagesNulls = (product: Product): Product => {
+  const normalizedProduct: Product = product;
+  if (product.about_image == "") {
+    normalizedProduct.about_image = null;
+  }
+  if (product.hover_image == "") {
+    normalizedProduct.hover_image = null;
+  }
+  if (product.info_image == "") {
+    normalizedProduct.info_image = null;
+  }
+  return normalizedProduct;
 };
