@@ -33,7 +33,16 @@ import {
   validateProduct,
   extractUserFromToken,
 } from "./util/api.helpers.js";
-import { isAdmin, isAdminOrStaff } from "./middleware/role.js";
+import { checkUser, isAdmin, isAdminOrStaff } from "./middleware/auth.js";
+import {
+  validCartItemBody,
+  validId,
+  validLoginBody,
+  validProduct,
+  validProductId,
+  validRegisterBody,
+} from "./middleware/petitiondata.js";
+import { attachCart } from "./middleware/cart.js";
 
 const app = express();
 app.use(
@@ -62,16 +71,12 @@ app.get("/products", async (req, res) => {
     res.status(200).json(data);
   } catch (e) {
     res.status(500).json(getError(e, "get", "products"));
-    console.log(e);
   }
 });
 
-app.get("/products/:id", async (req, res) => {
+app.get("/products/:id", validId, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    if (id < 0 || isNaN(id)) {
-      throw new Error("Invalid product id");
-    }
     const data = await selectProductById(id);
     if (!data) {
       throw new Error("Product " + id + " Not Found");
@@ -79,7 +84,6 @@ app.get("/products/:id", async (req, res) => {
     res.status(200).json(data);
   } catch (e) {
     res.status(404).json(getError(e, "get", "product with id"));
-    console.log(e);
   }
 });
 
@@ -93,7 +97,6 @@ app.get("/products/slug/:slug", async (req, res) => {
     res.status(200).json(data);
   } catch (e) {
     res.status(404).json(getError(e, "get", "product with slug"));
-    console.log(e);
   }
 });
 
@@ -109,16 +112,12 @@ app.delete("/products/slug/:slug", isAdminOrStaff, async (req, res) => {
     res.status(200).json(getFeedback("deleted"));
   } catch (e) {
     res.status(404).json(getError(e, "delete", "product with slug"));
-    console.log(e);
   }
 });
 
-app.delete("/products/:id", isAdminOrStaff, async (req, res) => {
+app.delete("/products/:id", isAdminOrStaff, validId, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
-    if (id < 0 || isNaN(id)) {
-      throw new Error("Invalid product id");
-    }
     const response = await deleteProductById(id);
     if (!response) {
       return res.status(404).json(getError("Not Found", "delete", "product"));
@@ -126,16 +125,12 @@ app.delete("/products/:id", isAdminOrStaff, async (req, res) => {
     res.status(200).json(getFeedback("deleted"));
   } catch (e) {
     res.status(404).json(getError(e, "delete", "product with id"));
-    console.log(e);
   }
 });
 
-app.post("/products", isAdminOrStaff, async (req, res) => {
+app.post("/products", isAdminOrStaff, validProduct, async (req, res) => {
   try {
     const product = req.body;
-    if (!validateProduct(product)) {
-      throw new Error("Cannot insert product - NOT VALID");
-    }
     const response = await insertProduct(product);
     if (response) {
       res.status(201).json(getFeedback("created"));
@@ -144,59 +139,56 @@ app.post("/products", isAdminOrStaff, async (req, res) => {
     }
   } catch (e) {
     res.json(getError(e.message, "post", "product"));
-    console.log(e);
   }
 });
 
-app.put("/products/:id", isAdminOrStaff, async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    if (id < 0 || isNaN(id)) {
-      throw new Error("Invalid product id");
+app.put(
+  "/products/:id",
+  isAdminOrStaff,
+  validId,
+  validProduct,
+  async (req, res) => {
+    try {
+      const id = parseInt(req.params.id);
+      const product = req.body;
+      const response = await updateProductById(id, product);
+      if (!response) {
+        return res
+          .status(404)
+          .json(getError("Not Found", "put", "product with id"));
+      }
+      res.status(200).json(getFeedback("updated"));
+    } catch (e) {
+      res.status(404).json(getError(e, "put", "product with id"));
     }
-    if (!validateProduct(req.body)) {
-      throw new Error("Cannot update product - NOT VALID");
-    }
-    const response = await updateProductById(id, req.body);
-    if (!response) {
-      return res
-        .status(404)
-        .json(getError("Not Found", "put", "product with id"));
-    }
-    res.status(200).json(getFeedback("updated"));
-  } catch (e) {
-    res.status(404).json(getError(e, "put", "product with id"));
-    console.log(e);
-  }
-});
+  },
+);
 
-app.put("/products/slug/:slug", isAdminOrStaff, async (req, res) => {
-  try {
-    const slug = req.params.slug;
-    if (!validateProduct(req.body)) {
-      throw new Error("Cannot update product - NOT VALID");
+app.put(
+  "/products/slug/:slug",
+  isAdminOrStaff,
+  validProduct,
+  async (req, res) => {
+    try {
+      const slug = req.params.slug;
+      const product = req.body;
+      const response = await updateProductBySlug(slug, product);
+      if (!response) {
+        return res
+          .status(404)
+          .json(getError("Not Found", "put", "product with slug"));
+      }
+      res.status(200).json(getFeedback("updated"));
+    } catch (e) {
+      res.status(404).json(getError(e, "put", "product with slug"));
     }
-    const response = await updateProductBySlug(slug, req.body);
-    if (!response) {
-      return res
-        .status(404)
-        .json(getError("Not Found", "put", "product with slug"));
-    }
-    res.status(200).json(getFeedback("updated"));
-  } catch (e) {
-    res.status(404).json(getError(e, "put", "product with slug"));
-    console.log(e);
-  }
-});
+  },
+);
 
 /* AUTH */
-
-app.post("/register", async (req, res) => {
+app.post("/register", validRegisterBody, async (req, res) => {
   try {
     const { email, pwd, name } = req.body;
-    if (!email || !pwd || !name) {
-      throw new Error("ERROR: falten dades o son incorrectes");
-    }
     const hashedPwd = await bcrypt.hash(pwd, 10);
     const createdUser = await createCustomer(email, hashedPwd, name);
     if (!createdUser) {
@@ -213,12 +205,9 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
+app.post("/login", validLoginBody, async (req, res) => {
   try {
     const { email, pwd } = req.body;
-    if (!email || !pwd) {
-      throw new Error("ERROR: falten dades o son incorrectes");
-    }
     const user = await getUserByEmail(email);
     if (!user || user == null) {
       throw new Error("User not found");
@@ -253,9 +242,9 @@ app.post("/logout", async (req, res) => {
   }
 });
 
-app.get("/auth/me", async (req, res) => {
+app.get("/auth/me", checkUser, async (req, res) => {
   try {
-    const { user_id, mail, role } = extractUserFromToken(req);
+    const { user_id, mail, role } = req.user;
     const user = await getUserByEmail(mail);
     res.status(200).json({
       loggedIn: true,
@@ -268,17 +257,10 @@ app.get("/auth/me", async (req, res) => {
 });
 
 /* CART */
-app.get("/cart", async (req, res) => {
+app.get("/cart", checkUser, attachCart, async (req, res) => {
   try {
-    const { user_id } = extractUserFromToken(req);
-    const cart = await getCartByUserId(user_id);
-    if (!cart) {
-      return res.status(404).json({
-        status: "error",
-        message: "Cart not found for user id: " + user_id,
-        error: true,
-      });
-    }
+    const { user_id, mail, role } = req.user;
+    const cart = req.cart;
     const items = await getCartItemsByCartId(cart.id);
     if (!items) {
       return res.status(500).json({
@@ -302,71 +284,84 @@ app.get("/cart", async (req, res) => {
   }
 });
 
-app.post("/cart/items", async (req, res) => {
-  try {
-    const productId = req.body.product_id;
-    if (!productId || isNaN(productId)) {
-      return res.status(400).json({
-        status: "error",
-        message: "Invalid or missing productId",
-        error: true,
-      });
+app.post(
+  "/cart/items",
+  checkUser,
+  attachCart,
+  validCartItemBody,
+  async (req, res) => {
+    try {
+      const productId = req.body.product_id;
+      const { user_id } = req.user;
+      const cart = req.cart;
+      const success = await insertProductIntoCart(cart.id, productId);
+      if (!success) {
+        return res
+          .status(404)
+          .json(
+            getError(
+              "Can't insert product into cart (db)",
+              "add",
+              "product to cart",
+            ),
+          );
+      }
+      res.status(200).json(getFeedback("added to cart"));
+    } catch (e) {
+      res
+        .status(401)
+        .json({ status: "error", message: e.message, error: true });
     }
-    const { user_id } = extractUserFromToken(req);
-    const cart = await getCartByUserId(user_id);
-    const success = await insertProductIntoCart(cart.id, productId);
-    if (!success) {
-      return res
-        .status(404)
-        .json(
-          getError(
-            "Can't insert product into cart (db)",
-            "add",
-            "product to cart",
-          ),
-        );
-    }
-    res.status(200).json(getFeedback("added to cart"));
-  } catch (e) {
-    res.status(401).json({ status: "error", message: e.message, error: true });
-  }
-});
+  },
+);
 
-app.put("/cart/items/:productId", async (req, res) => {
-  try {
-    const product_id = parseInt(req.params.productId);
-    const quantity = parseInt(req.body.quantity);
-    if (isNaN(product_id) || isNaN(quantity) || quantity < 1) {
-      return res.status(400).json({
-        status: "error",
-        message: "Lack of data or incorrect",
-        error: true,
-      });
+app.put(
+  "/cart/items/:productId",
+  validProductId,
+  checkUser,
+  attachCart,
+  async (req, res) => {
+    try {
+      const product_id = parseInt(req.params.productId);
+      const quantity = parseInt(req.body.quantity);
+      if (isNaN(product_id) || isNaN(quantity) || quantity < 1) {
+        return res.status(400).json({
+          status: "error",
+          message: "Lack of data or incorrect",
+          error: true,
+        });
+      }
+      const { user_id } = req.user;
+      const cart = req.cart;
+      const success = await updateProductQuantity(
+        cart.id,
+        product_id,
+        quantity,
+      );
+      if (!success) {
+        return res
+          .status(404)
+          .json(
+            getError(
+              "Can't update product into cart (db) - product not found in cart",
+              "update",
+              "product in cart",
+            ),
+          );
+      }
+      res.status(200).json(getFeedback("quantity modified"));
+    } catch (e) {
+      res
+        .status(401)
+        .json({ status: "error", message: e.message, error: true });
     }
-    const { user_id } = extractUserFromToken(req);
-    const cart = await getCartByUserId(user_id);
-    const success = await updateProductQuantity(cart.id, product_id, quantity);
-    if (!success) {
-      return res
-        .status(404)
-        .json(
-          getError(
-            "Can't update product into cart (db) - product not found in cart",
-            "update",
-            "product in cart",
-          ),
-        );
-    }
-    res.status(200).json(getFeedback("quantity modified"));
-  } catch (e) {
-    res.status(401).json({ status: "error", message: e.message, error: true });
-  }
-});
+  },
+);
 
-app.delete("/cart", async (req, res) => {
+app.delete("/cart", checkUser, attachCart, async (req, res) => {
   try {
-    const { user_id } = extractUserFromToken(req);
-    const cart = await getCartByUserId(user_id);
+    const { user_id } = req.user;
+    const cart = req.cart;
     const success = await deleteAllCartItems(cart.id);
     if (!success) {
       return res
@@ -381,21 +376,29 @@ app.delete("/cart", async (req, res) => {
   }
 });
 
-app.delete("/cart/items/:productId", async (req, res) => {
-  try {
-    const { user_id } = extractUserFromToken(req);
-    const cart = await getCartByUserId(user_id);
-    const product_id = parseInt(req.params.productId);
-    const success = await deleteProductFromCart(cart.id, product_id);
-    if (!success) {
-      return res
-        .status(404)
-        .json(
-          getError("Can't delete cart item", "delete", "product from cart"),
-        );
+app.delete(
+  "/cart/items/:productId",
+  checkUser,
+  attachCart,
+  validProductId,
+  async (req, res) => {
+    try {
+      const { user_id } = req.user;
+      const cart = req.cart;
+      const product_id = parseInt(req.params.productId);
+      const success = await deleteProductFromCart(cart.id, product_id);
+      if (!success) {
+        return res
+          .status(404)
+          .json(
+            getError("Can't delete cart item", "delete", "product from cart"),
+          );
+      }
+      res.status(200).json(getFeedback("product removed from cart"));
+    } catch (e) {
+      res
+        .status(401)
+        .json({ status: "error", message: e.message, error: true });
     }
-    res.status(200).json(getFeedback("product removed from cart"));
-  } catch (e) {
-    res.status(401).json({ status: "error", message: e.message, error: true });
-  }
-});
+  },
+);
