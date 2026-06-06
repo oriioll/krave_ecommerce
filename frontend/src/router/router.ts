@@ -6,6 +6,8 @@ import LoginView from "@/views/LoginView.vue";
 import RegisterView from "@/views/RegisterView.vue";
 import ProfileView from "@/views/ProfileView.vue";
 import CreateProductView from "@/views/CreateProductView.vue";
+import RenderProductsToEditView from "@/views/RenderProductsToEditView.vue";
+import EditProductView from "@/views/EditProductView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -32,11 +34,23 @@ const router = createRouter({
     },
     {
       path: "/profile",
+      name: "Profile",
       component: ProfileView,
     },
     {
       path: "/create-product",
+      name: "CreateProduct",
       component: CreateProductView,
+    },
+    {
+      path: "/manage-products",
+      name: "ManageProducts",
+      component: RenderProductsToEditView,
+    },
+    {
+      path: "/product/edit/:slug",
+      name: "EditProduct",
+      component: EditProductView,
     },
   ],
   scrollBehavior(to, from, savedPosition) {
@@ -53,7 +67,12 @@ router.beforeEach(async (to, _from, next) => {
   //check if userIsLogged to control authorization
   const authData = await userIsLogged();
   const guestAuthOnly = ["/login", "/register"];
-  const loggedOnly = ["/profile", "/create-product"];
+  const loggedOnly = [
+    "Profile",
+    "CreateProduct",
+    "ManageProducts",
+    "EditProduct",
+  ];
   if (authData.loggedIn === true) {
     //if user is logged and tries to enter to login or register
     if (guestAuthOnly.includes(to.path)) {
