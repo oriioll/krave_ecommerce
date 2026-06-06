@@ -1,4 +1,4 @@
-import { getCartByUserId } from "../repository/cartRepository";
+import { getCartByUserId } from "../repository/cartRepository.js";
 
 export const attachCart = async (req, res, next) => {
   try {

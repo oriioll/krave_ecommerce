@@ -1,4 +1,4 @@
-import { validateProduct } from "../util/api.helpers";
+import { validateProduct } from "../util/api.helpers.js";
 
 export const validId = async (req, res, next) => {
   const id = parseInt(req.params.id);
