@@ -1,15 +1,11 @@
 <script setup lang="ts">
 import ProductImages from '@/components/ProductImages.vue';
 import { getProductBySlug } from '@/services/products.fetcher.ts';
-import { onMounted, ref } from 'vue';
+import { onMounted, ref, reactive } from 'vue';
 import { useRoute } from "vue-router";
 import type { Product } from '@/types/Product.ts';
 import Navbar from '@/components/Navbar.vue';
-import { getUserCart, postProductIntoCart, putProductFromCart } from '@/services/cart.fetcher.ts';
-import { userIsLogged } from '@/services/auth.fetcher.ts';
-import router from '@/router/router';
-import { useUIStore } from '@/stores/cartUi.store.ts'
-const cartUiStore = useUIStore()
+import { useProductManagementStore } from '@/stores/productEdition.store';
 const product = ref<Product>()
 const route = useRoute();
 const slug = route.params.slug as string;
@@ -18,6 +14,7 @@ const cartError = ref(false)
 const errorMsg = ref('')
 const isLoading = ref(false)
 const cartIsLoading = ref(false)
+const editionStore = useProductManagementStore()
 onMounted(async () => {
     try {
         isLoading.value = true
@@ -27,6 +24,8 @@ onMounted(async () => {
             throw new Error("Product not found");
         }
         product.value = data;
+        //Set the reactive object form properties to the api return
+        Object.assign(form, data);
         isLoading.value = false
     } catch (e: any) {
         isLoading.value = false;
@@ -34,48 +33,24 @@ onMounted(async () => {
         error.value = true;
     }
 })
+const form = reactive({
+    id: null,
+    name: '',
+    description: '',
+    price: 0,
+    main_image: '',
+    hover_image: '',
+    about_image: '',
+    info_image: '',
+    weight: 0,
+    slug: ''
+})
+const modifyProduct = async () => {
 
-/**
- * Add the product to the cart
- * @param product_id The id of the product to add to the cart
- * @author Oriol Plazas León
- * @since 31/05/2026
- */
-const addProductToCard = async (product_id: number) => {
-    try {
-        cartIsLoading.value = true;
-        errorMsg.value = ''
-        cartError.value = false;
-        //check if user is logged
-        const userData = await userIsLogged();
-        if (userData.error) {
-            //if user not logged, go to login
-            return router.push("/login")
-        }
-        errorMsg.value = '';
-        const cartProducts = await getUserCart();
-        if (cartProducts.error) {
-            throw new Error('Cannot get usre cart products')
-        }
-        const productToAddInCart = cartProducts.items.find((p: any) => p.product_id == product_id)
-        if (!productToAddInCart) {
-            const data = await postProductIntoCart(product_id);
-            if (data.error) {
-                throw new Error('cannot add product to cart')
-            }
-        } else {
-            const data = await putProductFromCart(product_id, productToAddInCart.quantity + 1)
-            if (data.error) {
-                throw new Error(data.message)
-            }
-        }
-        await cartUiStore.openCart();
-        cartIsLoading.value = false
-    } catch (e: any) {
-        cartIsLoading.value = false;
-        cartError.value = true;
-        errorMsg.value = 'Cannot add product to card' + e.message;
-    }
+}
+const deleteProduct = async () => {
+    const id: number = product.value?.id!;
+    await editionStore.handleProductDelete(id)
 }
 </script>
 
@@ -96,14 +71,42 @@ const addProductToCard = async (product_id: number) => {
         </article>
     </section>
     <section v-else-if="!error">
-        <ProductImages v-if="product" class="img-carroussel" :key="product?.id!" :product="product" />
+        <ProductImages v-if="product" class="img-carroussel" :key="product?.id!" :product="(form as Product)" />
         <article class="text">
-            <h1>{{ product?.name }}</h1>
-            <p>{{ product?.price }}€</p>
+            <input type="text" v-model="form.name" style="font-weight: bold; font-size: var(--step-1);"></input>
+            <p>Price (€)</p>
+            <input type="number" v-model="form.price" style="font-weight: bold; font-size: var(--step-0);"></input>
+            <p>Weight (g)</p>
+            <input type="number" v-model="form.weight"></input>
             <hr>
-            <p>{{ product?.description }}</p>
-            <button v-if="!cartIsLoading" @click="addProductToCard(product?.id!!)" class="addToCart">Add To
-                Cart</button>
+            <textarea rows="3" type="text" v-model="form.description"></textarea>
+            <hr>
+            <p style="font-weight: bold; margin-bottom: 0.5rem;">Images URLs</p>
+
+            <div class="formRow">
+                <div class="formSection">
+                    <label for="mainImg">Main *</label>
+                    <input id="mainImg" v-model="form.main_image" type="url" placeholder="https://...">
+                </div>
+                <div class="formSection">
+                    <label for="hoverImg">Hover</label>
+                    <input id="hoverImg" v-model="form.hover_image" type="url" placeholder="https://...">
+                </div>
+            </div>
+
+            <div class="formRow">
+                <div class="formSection">
+                    <label for="aboutImg">About</label>
+                    <input id="aboutImg" v-model="form.about_image" type="url" placeholder="https://...">
+                </div>
+                <div class="formSection">
+                    <label for="infoImg">Info</label>
+                    <input id="infoImg" v-model="form.info_image" type="url" placeholder="https://...">
+                </div>
+            </div>
+            <hr>
+            <!--Buttons-->
+            <button v-if="!editionStore.isLoadingEdit" @click="modifyProduct" class="addToCart">Modify</button>
             <button v-else class="addToCart"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
                     viewBox="0 0 24 24">
                     <g fill="none" stroke="var(--white)" stroke-linecap="round" stroke-linejoin="round"
@@ -120,7 +123,25 @@ const addProductToCard = async (product_id: number) => {
                         </path>
                     </g>
                 </svg></button>
-            <p class="errorMsg" v-if="cartError">{{ errorMsg }}</p>
+            <button v-if="!editionStore.isLoadingDelete" @click="deleteProduct"
+                class="addToCart deleteProduct">Delete</button>
+            <button v-else class="addToCart"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                    viewBox="0 0 24 24">
+                    <g fill="none" stroke="var(--white)" stroke-linecap="round" stroke-linejoin="round"
+                        stroke-width="2">
+                        <path stroke-dasharray="18" d="M12 3c4.97 0 9 4.03 9 9">
+                            <animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="18;0" />
+                            <animateTransform attributeName="transform" dur="1s" repeatCount="indefinite" type="rotate"
+                                values="0 12 12;360 12 12" />
+                        </path>
+                        <path stroke-dasharray="60"
+                            d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"
+                            opacity=".3">
+                            <animate fill="freeze" attributeName="stroke-dashoffset" dur="1s" values="60;0" />
+                        </path>
+                    </g>
+                </svg></button>
+            <p class="errorMsg" v-if="editionStore.error">{{ editionStore.errorMsg }}</p>
         </article>
 
     </section>
@@ -210,10 +231,36 @@ section.loading {
     display: flex;
     flex-direction: column;
     gap: 1rem;
+    min-width: 40%;
+    width: 600px;
+    max-width: 100%;
 }
 
 p {
+    margin: 0;
     font-size: var(--step-0);
+}
+
+.formSection {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.formRow {
+    display: flex;
+    gap: 1rem;
+    width: 100%;
+}
+
+.formRow>div {
+    width: 50%;
+}
+
+label {
+    font-size: 0.85rem;
+    font-weight: bold;
+    color: var(--text-muted, #666);
 }
 
 .addToCart {
@@ -227,6 +274,10 @@ p {
     padding: 1rem 0rem;
     border-radius: 3px;
     cursor: pointer;
+}
+
+.deleteProduct {
+    background-color: var(--error);
 }
 
 @keyframes shimmer {
