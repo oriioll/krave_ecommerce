@@ -80,7 +80,7 @@ router.beforeEach(async (to, _from, next) => {
     }
   } else {
     //if user isn't logged and tries to enter to profile
-    if (loggedOnly.includes(to.path)) {
+    if (loggedOnly.includes(to.name as string)) {
       return next("/home");
     }
   }
