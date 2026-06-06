@@ -10,10 +10,7 @@ const product = ref<Product>()
 const route = useRoute();
 const slug = route.params.slug as string;
 const error = ref(false)
-const cartError = ref(false)
-const errorMsg = ref('')
 const isLoading = ref(false)
-const cartIsLoading = ref(false)
 const editionStore = useProductManagementStore()
 onMounted(async () => {
     try {
