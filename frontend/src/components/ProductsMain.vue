@@ -6,6 +6,9 @@ import { ref, onMounted } from 'vue';
 const error = ref<boolean>(false)
 const products = ref<Product[]>([]);
 const isLoading = ref(true)
+defineProps<{
+    editMode?: boolean
+}>()
 onMounted(async () => {
     try {
         isLoading.value = true;
@@ -36,8 +39,9 @@ onMounted(async () => {
                 </div>
             </article>
         </section>
+
         <section v-else-if="!error && !isLoading" class="productsGrid">
-            <ProductCard v-for="p in products" :key="p.id!" :product="p" />
+            <ProductCard :editMode="editMode" v-for="p in products" :key="p.id!" :product="p" />
             <br>
         </section>
         <section v-else class="error">
