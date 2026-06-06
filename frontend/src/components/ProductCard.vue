@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { Product } from '@/types/Product';
 const props = defineProps<{
-    product: Product
+    product: Product,
+    editMode?: boolean
 }>()
 
 </script>
@@ -15,8 +16,13 @@ const props = defineProps<{
                 :alt="'Image of product: ' + product.name">
         </div>
         <div class="textInfo">
-            <h5>
+            <h5 v-if="!editMode">
                 <router-link :to="'/product/' + product.slug">
+                    {{ product.name }}
+                </router-link>
+            </h5>
+            <h5 v-else>
+                <router-link :to="'/product/edit/' + product.slug">
                     {{ product.name }}
                 </router-link>
             </h5>
