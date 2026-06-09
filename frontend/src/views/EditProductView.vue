@@ -4,6 +4,7 @@ import { getProductBySlug } from '@/services/products.fetcher.ts';
 import { onMounted, ref, reactive } from 'vue';
 import { useRoute } from "vue-router";
 import type { Product } from '@/types/Product.ts';
+import slugify from 'slugify';
 import Navbar from '@/components/Navbar.vue';
 import { useProductManagementStore } from '@/stores/productEdition.store';
 const product = ref<Product>()
@@ -12,6 +13,10 @@ const slug = route.params.slug as string;
 const error = ref(false)
 const isLoading = ref(false)
 const editionStore = useProductManagementStore()
+
+/**
+ * When component is mounted get the product based on the url slug, and asign it to the form reactive object
+ */
 onMounted(async () => {
     try {
         isLoading.value = true
@@ -30,6 +35,7 @@ onMounted(async () => {
         error.value = true;
     }
 })
+//Reactive object with the form data so can two way bind with the form input and always have the current and correct data
 const form = reactive({
     id: null,
     name: '',
@@ -42,10 +48,33 @@ const form = reactive({
     weight: 0,
     slug: ''
 })
+/**
+ * Modifies the current product based on form data, calling handleProductModification store function
+ * @author Oriol Plazas León
+ * @since 09/06/2026
+ * @see handleProductModification
+ */
 const modifyProduct = async () => {
-
+    //if data is loading, return and not eexecute function
+    if (isLoading.value) {
+        return
+    }
+    //use slugify library to create slugs
+    form.slug = slugify(form.name, { lower: true, strict: true })
+    await editionStore.handleProductModification(form)
 }
+
+/**
+ * Deletes the current, calling handleProductDelete store function
+ * @author Oriol Plazas León
+ * @since 06/06/2026
+ * @see handleProductDelete
+ */
 const deleteProduct = async () => {
+    //if data is loading, return and not eexecute function
+    if (isLoading.value) {
+        return
+    }
     const id: number = product.value?.id!;
     await editionStore.handleProductDelete(id)
 }
@@ -71,9 +100,9 @@ const deleteProduct = async () => {
         <ProductImages v-if="product" class="img-carroussel" :key="product?.id!" :product="(form as Product)" />
         <article class="text">
             <input type="text" v-model="form.name" style="font-weight: bold; font-size: var(--step-1);"></input>
-            <p>Price (€)</p>
+            <p>Price (€)*</p>
             <input type="number" v-model="form.price" style="font-weight: bold; font-size: var(--step-0);"></input>
-            <p>Weight (g)</p>
+            <p>Weight (g)*</p>
             <input type="number" v-model="form.weight"></input>
             <hr>
             <textarea rows="3" type="text" v-model="form.description"></textarea>
@@ -233,7 +262,8 @@ section.loading {
     max-width: 100%;
 }
 
-p {
+p,
+label {
     margin: 0;
     font-size: var(--step-0);
 }
