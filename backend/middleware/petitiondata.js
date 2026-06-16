@@ -1,4 +1,4 @@
-import { validateProduct } from "../util/api.helpers.js";
+import { validateProduct, validateUser } from "../util/api.helpers.js";
 
 export const validId = async (req, res, next) => {
   const id = parseInt(req.params.id);
@@ -31,6 +31,18 @@ export const validProduct = async (req, res, next) => {
       error: true,
       status: "error",
       message: "Cannot process product - Product not valid",
+    });
+  }
+  next();
+};
+
+export const validUser = async (req, res, next) => {
+  const user = req.body;
+  if (!validateUser(user)) {
+    return res.status(400).json({
+      error: true,
+      status: "error",
+      message: "Cannot process user - User not valid",
     });
   }
   next();
