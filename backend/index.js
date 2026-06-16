@@ -41,8 +41,14 @@ import {
   validProduct,
   validProductId,
   validRegisterBody,
+  validUser,
 } from "./middleware/petitiondata.js";
 import { attachCart } from "./middleware/cart.js";
+import {
+  deleteUserById,
+  selectAllUsers,
+  updateUserById,
+} from "./repository/usersRepository.js";
 
 const app = express();
 app.use(
@@ -402,3 +408,40 @@ app.delete(
     }
   },
 );
+
+/* USERS - ADMIN */
+app.get("/admin/users", isAdmin, checkUser, async (req, res) => {
+  try {
+    const data = await selectAllUsers();
+    res.status(200).json(data);
+  } catch (e) {
+    res.status(401).json({ status: "error", message: e.message, error: true });
+  }
+});
+
+app.put("/admin/users/:id", isAdmin, validId, validUser, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const user = req.body;
+    const response = await updateUserById(id, user);
+    if (!response) {
+      return res.status(404).json(getError("Not Found", "put", "user with id"));
+    }
+    res.status(200).json(getFeedback("updated"));
+  } catch (e) {
+    res.status(404).json(getError(e, "put", "user with id"));
+  }
+});
+
+app.delete("/admin/users/:id", isAdmin, validId, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const response = await deleteUserById(id);
+    if (!response) {
+      return res.status(404).json(getError("Not Found", "delete", "user"));
+    }
+    res.status(200).json(getFeedback("deleted"));
+  } catch (e) {
+    res.status(404).json(getError(e, "delete", "user with id"));
+  }
+});
