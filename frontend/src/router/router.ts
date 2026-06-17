@@ -8,6 +8,7 @@ import ProfileView from "@/views/ProfileView.vue";
 import CreateProductView from "@/views/CreateProductView.vue";
 import RenderProductsToEditView from "@/views/RenderProductsToEditView.vue";
 import EditProductView from "@/views/EditProductView.vue";
+import ManageUsersView from "@/views/ManageUsersView.vue";
 
 const router = createRouter({
   history: createWebHistory(),
@@ -52,6 +53,11 @@ const router = createRouter({
       name: "EditProduct",
       component: EditProductView,
     },
+    {
+      path: "/manage-users",
+      name: "ManageUsers",
+      component: ManageUsersView,
+    },
   ],
   scrollBehavior(to, from, savedPosition) {
     if (savedPosition) {
@@ -71,6 +77,7 @@ router.beforeEach(async (to, _from, next) => {
     "Profile",
     "CreateProduct",
     "ManageProducts",
+    "ManageUsers",
     "EditProduct",
   ];
   if (authData.loggedIn === true) {
