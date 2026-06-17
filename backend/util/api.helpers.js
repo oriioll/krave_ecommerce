@@ -93,13 +93,13 @@ export const validateUser = (u) => {
   // If there isnt an object in param
   if (!u) return false;
   //Validate obligatory fields
-  if (!u.email || !u.password || !u.name) return false;
+  if (!u.email || !u.pwd || !u.name) return false;
   if (u.role_id === undefined || u.role_id === null) return false;
 
   //Validate data types
   if (
     typeof u.email !== "string" ||
-    typeof u.password !== "string" ||
+    typeof u.pwd !== "string" ||
     typeof u.name !== "string"
   )
     return false;
