@@ -46,3 +46,36 @@ export const updateUserById = async (id, user) => {
   );
   return response.rowCount > 0;
 };
+
+/**
+ * Inserts a user into db
+ * @param {*} user The user to insert
+ * @returns True if the insert was successfull
+ * @throws Error if insert fails
+ * @author Oriol Plazas León
+ * @since 17/06/2026
+ */
+export const insertUser = async (user) => {
+  const response = await krave_ecommerce_db_pool.query(
+    `INSERT INTO users 
+    (email, password, name, role_id)
+   VALUES ($1, $2, $3, $4)`,
+    [user.email, user.password, user.name, user.role_id],
+  );
+  return response.rowCount > 0;
+};
+
+/**
+ * Gets all info of the user passed in parameter
+ * @param {number} id The id of the user you want to select
+ * @returns The user selected in JSON format or null
+ * @author Oriol Plazas León
+ * @since 17/06/2026
+ */
+export const selectUserById = async (id) => {
+  const response = await krave_ecommerce_db_pool.query(
+    "SELECT * FROM users WHERE id = $1",
+    [id],
+  );
+  return response.rows[0] ?? null;
+};

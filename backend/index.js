@@ -46,7 +46,9 @@ import {
 import { attachCart } from "./middleware/cart.js";
 import {
   deleteUserById,
+  insertUser,
   selectAllUsers,
+  selectUserById,
   updateUserById,
 } from "./repository/usersRepository.js";
 
@@ -419,10 +421,39 @@ app.get("/admin/users", isAdmin, checkUser, async (req, res) => {
   }
 });
 
+app.get("/admin/users/:id", isAdmin, validId, async (req, res) => {
+  try {
+    const id = parseInt(req.params.id);
+    const data = await selectUserById(id);
+    if (!data) {
+      throw new Error("User " + id + " Not Found");
+    }
+    res.status(200).json(data);
+  } catch (e) {
+    res.status(404).json(getError(e, "get", "user with id"));
+  }
+});
+
+app.post("/admin/users", isAdmin, validUser, async (req, res) => {
+  try {
+    const user = req.body;
+    user.pwd = await bcrypt.hash(user.pwd, 10);
+    const response = await insertUser(user);
+    if (response) {
+      res.status(201).json(getFeedback("created"));
+    } else {
+      throw new Error("Cannot insert user");
+    }
+  } catch (e) {
+    res.json(getError(e.message, "post", "user"));
+  }
+});
+
 app.put("/admin/users/:id", isAdmin, validId, validUser, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const user = req.body;
+    user.pwd = await bcrypt.hash(user.pwd, 10);
     const response = await updateUserById(id, user);
     if (!response) {
       return res.status(404).json(getError("Not Found", "put", "user with id"));
