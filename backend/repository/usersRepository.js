@@ -8,7 +8,9 @@ import krave_ecommerce_db_pool from "../db/setupdb.js";
  * @since 16/06/2026
  */
 export const selectAllUsers = async () => {
-  const response = await krave_ecommerce_db_pool.query("SELECT * FROM users");
+  const response = await krave_ecommerce_db_pool.query(
+    "SELECT u.*, r.name as role FROM users u JOIN roles r ON r.id = u.role_id",
+  );
   return response.rows ?? null;
 };
 
@@ -74,7 +76,7 @@ export const insertUser = async (user) => {
  */
 export const selectUserById = async (id) => {
   const response = await krave_ecommerce_db_pool.query(
-    "SELECT * FROM users WHERE id = $1",
+    "SELECT u.*, r.name as role FROM users u JOIN roles r ON r.id = u.role_id WHERE id = $1",
     [id],
   );
   return response.rows[0] ?? null;
