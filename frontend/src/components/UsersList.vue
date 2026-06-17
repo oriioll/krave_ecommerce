@@ -3,6 +3,7 @@
 import { getUsers } from '@/services/users.fetcher';
 import type { User } from '@/types/User';
 import { ref, onMounted } from 'vue';
+import UsersFilters from './UsersFilters.vue';
 const error = ref<boolean>(false)
 const users = ref<User[]>([]);
 const isLoading = ref(true)
@@ -20,11 +21,34 @@ onMounted(async () => {
     }
 
 })
+
+const handleOrderBy = (criteria: string, asc: boolean) => {
+    if (criteria === 'name') {
+        if (asc) {
+            users.value.sort((a, b) => a.name.localeCompare(b.name))
+        } else {
+            users.value.sort((a, b) => b.name.localeCompare(a.name))
+        }
+    } else if (criteria === 'mail') {
+        if (asc) {
+            users.value.sort((a, b) => a.email.localeCompare(b.email))
+        } else {
+            users.value.sort((a, b) => b.email.localeCompare(a.email))
+        }
+    } else if (criteria === 'role') {
+        if (asc) {
+            users.value.sort((a, b) => a.role!.localeCompare(b.role!))
+        } else {
+            users.value.sort((a, b) => b.role!.localeCompare(a.role!))
+        }
+    }
+}
 </script>
 
 <template>
     <div class="mainUsers">
         <h2>Manage the users</h2>
+        <UsersFilters @change-order="handleOrderBy" />
         <section v-if=isLoading class="usersList loading">
             <div v-for="_ in 5" class="skeleton-row">
                 <div class="skeleton-content">
@@ -65,7 +89,6 @@ p {
     flex-direction: column;
     gap: 1rem;
     padding: 1rem;
-    min-height: 140vh;
 }
 
 /*LOADING SKELETON STYLES */
