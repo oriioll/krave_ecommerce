@@ -314,11 +314,24 @@ const handleUserEdition = async () => {
                 </div>
 
                 <div class="col-actions">
-                    <button @click="handleOpenEdition(user)" class="btn-edit">Edit</button>
-                    <button v-if="!deleteLoading" @click="deleteUser(user)" class="deleteUser">Delete User</button>
-                    <button v-else class="deleteUser"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                    <button class="icon-btn edit" title="Edit user" @click="handleOpenEdition(user)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                        </svg>
+                    </button>
+                    <button class="icon-btn delete" title="Delete user" v-if="!deleteLoading" @click="deleteUser(user)">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 6h18" />
+                            <path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6" />
+                            <path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2" />
+                        </svg>
+                    </button>
+                    <button v-else class="deleteUser"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20"
                             viewBox="0 0 24 24">
-                            <g fill="none" stroke="var(--white)" stroke-linecap="round" stroke-linejoin="round"
+                            <g fill="none" stroke="var(--black)" stroke-linecap="round" stroke-linejoin="round"
                                 stroke-width="2">
                                 <path stroke-dasharray="18" d="M12 3c4.97 0 9 4.03 9 9">
                                     <animate fill="freeze" attributeName="stroke-dashoffset" dur="0.3s" values="18;0" />
@@ -589,14 +602,31 @@ p {
     text-transform: uppercase;
 }
 
-.usersList button {
-    padding: .5rem 1.5rem;
-    font-weight: 600;
-    font-size: var(--step--1);
-}
 
 .deleteUser {
     background-color: var(--error);
+}
+
+.icon-btn {
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: .5rem .35rem;
+    transition: all 0.2s ease;
+    color: var(--black);
+}
+
+.icon-btn.edit:hover {
+    color: var(--text-muted);
+}
+
+.icon-btn.delete:hover {
+    color: var(--error);
+    background-color: #fef2f2;
+    border-radius: 2px;
 }
 
 @media (min-width: 800px) {
@@ -606,6 +636,10 @@ p {
 }
 
 @media (min-width: 1000px) {
+    .icon-btn {
+        padding: 0.6rem;
+    }
+
     .usersList button {
         padding: .5rem .5rem;
         font-weight: 600;
