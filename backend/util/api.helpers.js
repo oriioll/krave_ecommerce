@@ -109,8 +109,6 @@ export const validateUser = (u) => {
   //Basic email validation
   const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   if (!emailRegex.test(u.email)) return false;
-  //Password minimum length validation
-  if (u.password.length < 6) return false;
   return true;
 };
 

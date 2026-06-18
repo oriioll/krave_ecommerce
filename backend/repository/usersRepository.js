@@ -44,7 +44,7 @@ export const updateUserById = async (id, user) => {
     `UPDATE users SET 
     email=$1, password=$2, name=$3, role_id=$4
     WHERE id=$5`,
-    [user.email, user.password, user.name, user.role_id, id],
+    [user.email, user.pwd, user.name, user.role_id, id],
   );
   return response.rowCount > 0;
 };
@@ -62,7 +62,7 @@ export const insertUser = async (user) => {
     `INSERT INTO users 
     (email, password, name, role_id)
    VALUES ($1, $2, $3, $4)`,
-    [user.email, user.password, user.name, user.role_id],
+    [user.email, user.pwd, user.name, user.role_id],
   );
   return response.rowCount > 0;
 };
