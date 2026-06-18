@@ -1,15 +1,15 @@
 import krave_ecommerce_db_pool from "../db/setupdb.js";
 
 /**
- * Gets all info of all users using a query into DB
- * @query SELECT * FROM users
+ * Gets all info of all users using a query into DB (without password)
+ * @query SELECT * FROM users without password column
  * @returns All users in JSON format or null
  * @author Oriol Plazas León
  * @since 16/06/2026
  */
 export const selectAllUsers = async () => {
   const response = await krave_ecommerce_db_pool.query(
-    "SELECT u.*, r.name as role FROM users u JOIN roles r ON r.id = u.role_id",
+    "SELECT u.id, u.email, u.name, u.role_id, r.name as role FROM users u JOIN roles r ON r.id = u.role_id",
   );
   return response.rows ?? null;
 };
@@ -31,9 +31,9 @@ export const deleteUserById = async (id) => {
 };
 
 /**
- * Updates a user from db
+ * Updates a user from db (without updating password)
  * @param {*} id The id of the user to update
- * @param {*} user The new data of the user
+ * @param {*} user The new data of the user (email, name, role_id)
  * @returns True if the update was successfull
  * @throws Error if update fails
  * @author Oriol Plazas León
@@ -42,9 +42,9 @@ export const deleteUserById = async (id) => {
 export const updateUserById = async (id, user) => {
   const response = await krave_ecommerce_db_pool.query(
     `UPDATE users SET 
-    email=$1, password=$2, name=$3, role_id=$4
-    WHERE id=$5`,
-    [user.email, user.pwd, user.name, user.role_id, id],
+    email=$1, name=$2, role_id=$3
+    WHERE id=$4`,
+    [user.email, user.name, user.role_id, id],
   );
   return response.rowCount > 0;
 };
@@ -68,7 +68,7 @@ export const insertUser = async (user) => {
 };
 
 /**
- * Gets all info of the user passed in parameter
+ * Gets all info of the user passed in parameter (without password)
  * @param {number} id The id of the user you want to select
  * @returns The user selected in JSON format or null
  * @author Oriol Plazas León
@@ -76,7 +76,7 @@ export const insertUser = async (user) => {
  */
 export const selectUserById = async (id) => {
   const response = await krave_ecommerce_db_pool.query(
-    "SELECT u.*, r.name as role FROM users u JOIN roles r ON r.id = u.role_id WHERE id = $1",
+    "SELECT u.id, u.email, u.name, u.role_id, r.name as role FROM users u JOIN roles r ON r.id = u.role_id WHERE u.id = $1",
     [id],
   );
   return response.rows[0] ?? null;

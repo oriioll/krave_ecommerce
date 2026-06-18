@@ -42,6 +42,7 @@ import {
   validProductId,
   validRegisterBody,
   validUser,
+  validUserUpdate,
 } from "./middleware/petitiondata.js";
 import { attachCart } from "./middleware/cart.js";
 import {
@@ -450,11 +451,11 @@ app.post("/admin/users", isAdmin, validUser, async (req, res) => {
   }
 });
 
-app.put("/admin/users/:id", isAdmin, validId, validUser, async (req, res) => {
+app.put("/admin/users/:id", isAdmin, validId, validUserUpdate, async (req, res) => {
   try {
     const id = parseInt(req.params.id);
     const user = req.body;
-    user.pwd = await bcrypt.hash(user.pwd, 10);
+    // Note: password is NOT updated in PUT request
     const response = await updateUserById(id, user);
     if (!response) {
       return res.status(404).json(getError("Not Found", "put", "user with id"));

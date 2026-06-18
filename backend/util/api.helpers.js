@@ -113,6 +113,33 @@ export const validateUser = (u) => {
 };
 
 /**
+ * Validates if a user object for update has all required properties and correct types (no password required)
+ * @param {Object} u - The user object to validate
+ * @returns {boolean} True if the user is valid, false otherwise
+ */
+export const validateUserForUpdate = (u) => {
+  // If there isnt an object in param
+  if (!u) return false;
+  //Validate obligatory fields (password NOT required for updates)
+  if (!u.email || !u.name) return false;
+  if (u.role_id === undefined || u.role_id === null) return false;
+
+  //Validate data types
+  if (
+    typeof u.email !== "string" ||
+    typeof u.name !== "string"
+  )
+    return false;
+  if (typeof u.role_id !== "number") return false;
+  //Validate bussines logic
+  if (u.role_id < 0) return false;
+  //Basic email validation
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  if (!emailRegex.test(u.email)) return false;
+  return true;
+};
+
+/**
  * Generates a jwt based on user_id and mail and sets a cookie in server with the token,
  * @param {*} res The response express endpoint parameter to set the cookie
  * @param {*} user_id the user_id to identify token
