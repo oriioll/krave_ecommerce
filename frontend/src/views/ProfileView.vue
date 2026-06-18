@@ -53,7 +53,7 @@ const handleLogout = async () => {
                                 d="M7.326 9.691L4.405 8.278C2.802 7.502 2 7.114 2 6.5s.802-1.002 2.405-1.778l2.92-1.413C9.13 2.436 10.03 2 11 2s1.871.436 3.674 1.309l2.921 1.413C19.198 5.498 20 5.886 20 6.5s-.802 1.002-2.405 1.778l-2.92 1.413C12.87 10.564 11.97 11 11 11s-1.871-.436-3.674-1.309M5 12l2 1m9-9L6 9" />
                         </g>
                     </svg>
-                    <h5><strong>Add Product</strong></h5>
+                    <h5>Add Product</h5>
                 </div>
                 <div @click="goToLink('/manage-products')" class="actionCard manageProducts">
                     <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 24 24">
@@ -62,7 +62,7 @@ const handleLogout = async () => {
                         <path fill="#000000"
                             d="M5 21h14c1.103 0 2-.897 2-2v-8.668l-2 2V19H8.158c-.026 0-.053.01-.079.01c-.033 0-.066-.009-.1-.01H5V5h6.847l2-2H5c-1.103 0-2 .897-2 2v14c0 1.103.897 2 2 2" />
                     </svg>
-                    <h5><strong>Manage Products</strong></h5>
+                    <h5>Manage Products</h5>
                 </div>
                 <!--Only if user is an admin can manage users-->
                 <div @click="goToLink('/manage-users')" v-if="role == 'admin'" class="actionCard manageUsers">
@@ -71,7 +71,7 @@ const handleLogout = async () => {
                             stroke-width="2"
                             d="M5 7a4 4 0 1 0 8 0a4 4 0 1 0-8 0M3 21v-2a4 4 0 0 1 4-4h4a4 4 0 0 1 4 4v2m1-17.87a4 4 0 0 1 0 7.75M21 21v-2a4 4 0 0 0-3-3.85" />
                     </svg>
-                    <h5><strong>Manage Users</strong></h5>
+                    <h5>Manage Users</h5>
                 </div>
             </div>
         </section>
