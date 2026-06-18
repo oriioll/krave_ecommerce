@@ -4,17 +4,18 @@
 
 ## 📌 Project Overview
 
-**KRAVE** is a modern, full-stack e-commerce platform specializing in sports nutrition supplements. It provides a seamless shopping experience with user authentication, product browsing, shopping cart management, and a robust REST API backend. The application is built with Vue 3, TypeScript, and Express.js, featuring a PostgreSQL database for reliable data management.
+**KRAVE** is a modern, full-stack e-commerce platform specializing in sports nutrition supplements. It provides a seamless shopping experience with user authentication, product browsing, shopping cart management, comprehensive admin features for user and product management, and a robust REST API backend. The application is built with Vue 3, TypeScript, and Express.js, featuring a PostgreSQL database for reliable data management and role-based access control.
 
 ### Key Features
 
 - 🛒 **Shopping Cart System** - Add, update, and remove products from cart
 - 🔐 **User Authentication** - Secure registration and login with JWT tokens
-- 📦 **Product Management** - Browse and view detailed product information
-- 👤 **User Profiles** - Personalized user accounts
+- 📦 **Product Management** - Full CRUD operations for products (Admin/Staff only)
+- 👥 **User Management** - Admin dashboard for managing users, roles, and permissions
+- 👤 **User Profiles** - Personalized user accounts with role assignment
 - 🎨 **Responsive UI** - Mobile-first design with Vue 3 components
-- 🔌 **REST API** - Complete API endpoints for product, cart, and auth operations
-- 🛡️ **Role-Based Access** - Admin controls for product management
+- 🔌 **REST API** - Complete API endpoints for products, users, cart, and auth operations
+- 🛡️ **Role-Based Access Control** - Three-tier roles (Admin, Staff, Customer) with granular permissions
 
 ---
 
@@ -28,17 +29,27 @@ krave-ecommerce/
 │   │   │   ├── Navbar.vue      # Navigation bar with cart toggle
 │   │   │   ├── ProductCard.vue # Product display component
 │   │   │   ├── ProductImages.vue # Product image carousel
-│   │   │   └── HeroHome.vue    # Landing section
+│   │   │   ├── HeroHome.vue    # Landing section
+│   │   │   ├── UsersList.vue   # Admin user list with filters
+│   │   │   ├── UsersFilters.vue # User filtering component
+│   │   │   ├── ProductsMain.vue # Products main display
+│   │   │   ├── OnlyLogoNavbar.vue # Minimal navbar variant
+│   │   │   └── ProductImages.vue # Product image handler
 │   │   ├── views/               # Page components
 │   │   │   ├── HomeView.vue    # Products listing
 │   │   │   ├── ProductView.vue # Product details
 │   │   │   ├── LoginView.vue   # User login
 │   │   │   ├── RegisterView.vue # User registration
-│   │   │   └── ProfileView.vue # User profile
+│   │   │   ├── ProfileView.vue # User profile
+│   │   │   ├── ManageUsersView.vue # Admin user management
+│   │   │   ├── CreateProductView.vue # Product creation form
+│   │   │   ├── EditProductView.vue # Product editing form
+│   │   │   └── RenderProductsToEditView.vue # Product selection for editing
 │   │   ├── services/            # API communication
 │   │   │   ├── auth.fetcher.ts # Authentication API calls
 │   │   │   ├── cart.fetcher.ts # Cart API calls
-│   │   │   └── products.fetcher.ts # Product API calls
+│   │   │   ├── products.fetcher.ts # Product API calls
+│   │   │   └── users.fetcher.ts # User management API calls
 │   │   ├── stores/              # Pinia state management
 │   │   │   └── cartUi.store.ts # Cart UI state
 │   │   ├── router/              # Vue Router configuration
@@ -58,7 +69,8 @@ krave-ecommerce/
 │   ├── repository/              # Database layer
 │   │   ├── authRepository.js    # User queries
 │   │   ├── cartRepository.js    # Cart queries
-│   │   └── productsRepository.js # Product queries
+│   │   ├── productsRepository.js # Product queries
+│   │   └── usersRepository.js    # User management queries
 │   ├── util/
 │   │   └── api.helpers.js       # Utility functions
 │   ├── middleware/
@@ -150,9 +162,15 @@ CREATE TABLE cart_items (
 ### Database Relationships
 
 - **1-to-1**: User ↔ Cart
-- **1-to-Many**: User ↔ Roles
+- **Many-to-1**: User ↔ Roles
 - **1-to-Many**: Cart ↔ Cart Items
 - **1-to-Many**: Products ↔ Cart Items
+
+### Available Roles
+
+- **Admin (ID: 1)** - Full access to all features including user and product management
+- **Staff (ID: 3)** - Can manage products but cannot manage users
+- **Customer (ID: 2)** - Regular user with shopping capabilities only
 
 ---
 
@@ -229,7 +247,7 @@ GET /products/slug/:slug
 
 **Response (200 OK):** Same as above
 
-#### Create Product (Admin Only)
+#### Create Product (Admin/Staff Only)
 
 ```http
 POST /products
@@ -253,7 +271,7 @@ Content-Type: application/json
 }
 ```
 
-#### Update Product (Admin Only)
+#### Update Product (Admin/Staff Only)
 
 ```http
 PUT /products/:id
@@ -274,10 +292,134 @@ Content-Type: application/json
 }
 ```
 
-#### Delete Product (Admin Only)
+#### Delete Product (Admin/Staff Only)
 
 ```http
 DELETE /products/:id
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "status": "success",
+  "message": "deleted"
+}
+```
+
+---
+
+### User Management Endpoints
+
+![User List Mockup](mockups/user-management-dashboard.png)
+
+**Authentication Required:** Yes - Admin only
+
+#### Get All Users
+
+```http
+GET /admin/users
+```
+
+**Response (200 OK):**
+
+```json
+[
+  {
+    "id": 1,
+    "email": "admin@krave.com",
+    "name": "Admin User",
+    "role_id": 1,
+    "role": "ADMIN"
+  },
+  {
+    "id": 5,
+    "email": "customer@example.com",
+    "name": "John Doe",
+    "role_id": 2,
+    "role": "CUSTOMER"
+  },
+  {
+    "id": 3,
+    "email": "staff@krave.com",
+    "name": "Staff Member",
+    "role_id": 3,
+    "role": "STAFF"
+  }
+]
+```
+
+#### Get User by ID
+
+```http
+GET /admin/users/:id
+```
+
+**Response (200 OK):**
+
+```json
+{
+  "id": 5,
+  "email": "customer@example.com",
+  "name": "John Doe",
+  "role_id": 2,
+  "role": "CUSTOMER"
+}
+```
+
+#### Create User (Admin Only)
+
+```http
+POST /admin/users
+Content-Type: application/json
+
+{
+    "email": "newuser@example.com",
+    "name": "New User",
+    "pwd": "SecurePassword123",
+    "role_id": 2
+}
+```
+
+**Response (201 Created):**
+
+```json
+{
+  "status": "success",
+  "message": "created"
+}
+```
+
+#### Edit User (Admin Only)
+
+![User Edit Mockup](mockups/user-edit.png)
+
+```http
+PUT /admin/users/:id
+Content-Type: application/json
+
+{
+    "email": "updated@example.com",
+    "name": "Updated Name",
+    "role_id": 3
+}
+```
+
+**Note:** Password is NOT updated in PUT requests.
+
+**Response (200 OK):**
+
+```json
+{
+  "status": "success",
+  "message": "updated"
+}
+```
+
+#### Delete User (Admin Only)
+
+```http
+DELETE /admin/users/:id
 ```
 
 **Response (200 OK):**
@@ -591,13 +733,25 @@ The API will be available at `http://localhost:3000`
 - Remove items
 - Checkout button
 
+### User Management (Admin Only)
+
+![User Management Mockup](mockups/user-management-dashboard.png)
+
+- View all users with detailed information
+- Filter users by name, email, or role
+- Sort by different criteria (name, email, role)
+- Create new users with role assignment
+- Edit user information (name, email, role)
+- Delete users from the system
+- User roles: Admin, Staff, Customer
+
 ---
 
 ## 🔐 Authentication & Security
 
 - **JWT Tokens**: Secure token-based authentication
 - **Password Hashing**: bcrypt algorithm for password encryption
-- **Role-Based Access Control**: Admin and customer roles
+- **Role-Based Access Control**: Admin, Staff, and Customer roles
 - **CORS**: Restricted cross-origin requests
 - **HTTP-only Cookies**: Secure token storage
 - **Environment Variables**: Sensitive data protected
@@ -642,9 +796,15 @@ All API responses follow a consistent format:
 
 ## 📈 Future Enhancements
 
-- [ ] Advanced search and filtering
-- [ ] Admin dashboard
-- [ ] Performance optimization
+- [x] Role-Based Access Control (RBAC)
+- [x] Admin user management dashboard
+- [x] Product CRUD for Admin/Staff
+- [ ] Advanced search and filtering with full-text search
+- [ ] Product reviews and ratings system
+- [ ] Email notifications for orders
+- [ ] Payment gateway integration
+- [ ] Analytics dashboard
+- [ ] Performance optimization and caching
 
 ---
 
