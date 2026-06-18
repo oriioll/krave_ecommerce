@@ -53,7 +53,7 @@ const mailAsc = ref(false)
 .filters {
     width: 100%;
     display: flex;
-    gap: 5rem;
+    gap: 2rem;
     justify-content: flex-start;
     align-items: center;
 }
@@ -69,5 +69,9 @@ button {
 
 @media (min-width: 800px) {}
 
-@media (min-width: 1000px) {}
+@media (min-width: 1000px) {
+    .filters {
+        gap: 5rem;
+    }
+}
 </style>
