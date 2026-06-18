@@ -1,6 +1,6 @@
 <script setup lang="ts">
 
-import { deleteUserById, getUsers, postUser } from '@/services/users.fetcher';
+import { deleteUserById, getUsers, postUser, putUserById } from '@/services/users.fetcher';
 import type { User } from '@/types/User';
 import { ref, onMounted, reactive } from 'vue';
 import UsersFilters from './UsersFilters.vue';
@@ -9,6 +9,7 @@ const errorMsg = ref('')
 const users = ref<User[]>([]);
 const isLoading = ref(true)
 const createUserIsOpen = ref(false)
+const editUserIsOpen = ref(false)
 const deleteLoading = ref(false)
 const opsError = ref(false)
 onMounted(async () => {
@@ -103,7 +104,7 @@ const handleCreateUser = async () => {
         const success = await postUser(newUser)
         if (success.error) throw new Error(success.message)
         // reset form
-        newUser = { name: '', email: '', pwd: '', role_id: 1 }
+        Object.assign(newUser, { name: '', email: '', pwd: '', role_id: 1 })
         closeCreateUser()
         // refresca la llista
         const data = await getUsers()
@@ -115,10 +116,52 @@ const handleCreateUser = async () => {
         createIsLoading.value = false
     }
 }
+
+
+/**User Edition */
+const modifyError = ref(false)
+const modifyErrorMsg = ref('')
+const modifyUserIsLoading = ref(false)
+
+const handleOpenEdition = (user: User) => {
+    editUserIsOpen.value = !editUserIsOpen.value
+    Object.assign(editUser, user)
+}
+
+const closeEdition = () => {
+    editUserIsOpen.value = false
+}
+let editUser = reactive({
+    id: 0,
+    name: '',
+    email: '',
+    role_id: 1
+})
+const handleUserEdition = async () => {
+    try {
+        modifyUserIsLoading.value = true
+        modifyError.value = false
+        modifyErrorMsg.value = ''
+        const success = await putUserById(editUser.id, editUser)
+        if (success.error) throw new Error(success.message)
+        closeEdition()
+        // refresca la llista
+        const data = await getUsers()
+        users.value = data
+    } catch (e: any) {
+        modifyError.value = true
+        modifyErrorMsg.value = e.message
+    } finally {
+        modifyUserIsLoading.value = false
+    }
+}
 </script>
 
 <template>
     <div class="mainUsers">
+        <!--
+        USER CREATION MODAL
+        -->
         <!--Overlay to blur all the background-->
         <div v-if="createUserIsOpen" class="blur-overlay active"></div>
         <div v-if="createUserIsOpen" class="shoppingCart">
@@ -184,6 +227,68 @@ const handleCreateUser = async () => {
 
             </article>
         </div>
+        <!--
+        USER EDITION MODAL
+        -->
+        <div v-if="editUserIsOpen" class="blur-overlay active"></div>
+        <div v-if="editUserIsOpen" class="shoppingCart">
+            <div class="top">
+                <svg @click="closeEdition" xmlns="http://www.w3.org/2000/svg" width="30" height="30"
+                    viewBox="0 0 24 24">
+                    <path fill="var(--black)"
+                        d="M5.293 5.293a1 1 0 0 1 1.414 0L12 10.586l5.293-5.293a1 1 0 1 1 1.414 1.414L13.414 12l5.293 5.293a1 1 0 0 1-1.414 1.414L12 13.414l-5.293 5.293a1 1 0 0 1-1.414-1.414L10.586 12L5.293 6.707a1 1 0 0 1 0-1.414" />
+                </svg>
+                <h3>Modify user</h3>
+                <div class="auxiliarDiv">
+                    <!--Auxiliar div to fill the cart heading-->
+                </div>
+            </div>
+            <hr>
+            <article class="cartProducts">
+                <div v-if="modifyUserIsLoading" class="loadingCart">
+                    <p class="muted">Loading...</p>
+                </div>
+                <form @submit.prevent="handleUserEdition" class="createUserForm">
+                    <div class="field">
+                        <label for="name">Name</label>
+                        <input id="name" type="text" v-model="editUser.name" placeholder="John Doe" required />
+                    </div>
+
+                    <div class="field">
+                        <label for="email">Email</label>
+                        <input id="email" type="email" v-model="editUser.email" placeholder="john@email.com" required />
+                    </div>
+
+                    <div class="field">
+                        <label for="role">Role</label>
+                        <select id="role" v-model="editUser.role_id">
+                            <option v-for="role in roles" :key="role.id" :value="role.id">
+                                {{ role.name }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <p class="errorMsg" v-if="modifyError">{{ modifyErrorMsg }}</p>
+
+                    <button type="submit" class="checkoutBtn" :disabled="modifyUserIsLoading">
+                        <span v-if="!modifyUserIsLoading">Edit User</span>
+                        <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24">
+                            <g fill="none" stroke="var(--white)" stroke-linecap="round" stroke-linejoin="round"
+                                stroke-width="2">
+                                <path stroke-dasharray="18" d="M12 3c4.97 0 9 4.03 9 9">
+                                    <animateTransform attributeName="transform" dur="1s" repeatCount="indefinite"
+                                        type="rotate" values="0 12 12;360 12 12" />
+                                </path>
+                                <path stroke-dasharray="60"
+                                    d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9Z"
+                                    opacity=".3" />
+                            </g>
+                        </svg>
+                    </button>
+                </form>
+
+            </article>
+        </div>
         <article class="title">
             <h2>Users</h2>
             <h4 @click="handleOpenCard">+ Add User</h4>
@@ -209,7 +314,7 @@ const handleCreateUser = async () => {
                 </div>
 
                 <div class="col-actions">
-                    <button class="btn-edit">Edit</button>
+                    <button @click="handleOpenEdition(user)" class="btn-edit">Edit</button>
                     <button v-if="!deleteLoading" @click="deleteUser(user)" class="deleteUser">Delete User</button>
                     <button v-else class="deleteUser"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30"
                             viewBox="0 0 24 24">
@@ -267,11 +372,25 @@ hr {
     display: flex;
     width: 100%;
     gap: 1rem;
+    align-items: center;
     justify-content: space-between;
 }
 
 .top svg {
+    width: 30px;
+    flex-shrink: 0;
     cursor: pointer;
+}
+
+.top h3 {
+    flex: 1;
+    text-align: center;
+}
+
+.auxiliarDiv {
+    width: 30px;
+    /* igual que la svg */
+    flex-shrink: 0;
 }
 
 .cartProducts {
