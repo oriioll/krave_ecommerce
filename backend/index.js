@@ -445,6 +445,7 @@ app.post("/admin/users", isAdmin, validUser, async (req, res) => {
       throw new Error("Cannot insert user");
     }
   } catch (e) {
+    console.log(e);
     res.json(getError(e.message, "post", "user"));
   }
 });
