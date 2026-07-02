@@ -1,8 +1,12 @@
-import { validateProduct, validateUser, validateUserForUpdate } from "../util/api.helpers.js";
+import {
+  validateProduct,
+  validateUser,
+  validateUserForUpdate,
+} from "../util/api.helpers.js";
 
 export const validId = async (req, res, next) => {
-  const id = parseInt(req.params.id);
-  if (id < 0 || isNaN(id)) {
+  const id = Number.parseInt(req.params.id);
+  if (id < 0 || Number.isNaN(id)) {
     return res.status(400).json({
       error: "true",
       status: "error",
@@ -13,8 +17,8 @@ export const validId = async (req, res, next) => {
 };
 
 export const validProductId = async (req, res, next) => {
-  const id = parseInt(req.params.productId);
-  if (id < 0 || isNaN(id)) {
+  const id = Number.parseInt(req.params.productId);
+  if (id < 0 || Number.isNaN(id)) {
     return res.status(400).json({
       error: "true",
       status: "error",
@@ -85,7 +89,7 @@ export const validLoginBody = async (req, res, next) => {
 
 export const validCartItemBody = async (req, res, next) => {
   const productId = req.body.product_id;
-  if (!productId || isNaN(productId)) {
+  if (!productId || Number.isNaN(productId)) {
     return res.status(400).json({
       status: "error",
       message: "Invalid or missing productId",

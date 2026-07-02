@@ -1,13 +1,11 @@
 import express from "express";
 import bcrypt from "bcrypt";
 import bodyParser from "body-parser";
-import jwt from "jsonwebtoken";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import dotenv from "dotenv";
 dotenv.config();
 
-import { setUserToken } from "./util/api.helpers.js"; //import db functions
 import {
   selectAllProducts,
   selectProductById,
@@ -21,18 +19,12 @@ import {
 import { createCustomer, getUserByEmail } from "./repository/authRepository.js";
 import {
   deleteAllCartItems,
-  getCartByUserId,
   getCartItemsByCartId,
   insertProductIntoCart,
   updateProductQuantity,
   deleteProductFromCart,
 } from "./repository/cartRepository.js";
-import {
-  getFeedback,
-  getError,
-  validateProduct,
-  extractUserFromToken,
-} from "./util/api.helpers.js";
+import { getFeedback, getError, setUserToken } from "./util/api.helpers.js";
 import { checkUser, isAdmin, isAdminOrStaff } from "./middleware/auth.js";
 import {
   validCartItemBody,
@@ -85,7 +77,7 @@ app.get("/products", async (req, res) => {
 
 app.get("/products/:id", validId, async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number.parseInt(req.params.id);
     const data = await selectProductById(id);
     if (!data) {
       throw new Error("Product " + id + " Not Found");
@@ -126,7 +118,7 @@ app.delete("/products/slug/:slug", isAdminOrStaff, async (req, res) => {
 
 app.delete("/products/:id", isAdminOrStaff, validId, async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number.parseInt(req.params.id);
     const response = await deleteProductById(id);
     if (!response) {
       return res.status(404).json(getError("Not Found", "delete", "product"));
@@ -158,7 +150,7 @@ app.put(
   validProduct,
   async (req, res) => {
     try {
-      const id = parseInt(req.params.id);
+      const id = Number.parseInt(req.params.id);
       const product = req.body;
       const response = await updateProductById(id, product);
       if (!response) {
@@ -268,7 +260,7 @@ app.get("/auth/me", checkUser, async (req, res) => {
 /* CART */
 app.get("/cart", checkUser, attachCart, async (req, res) => {
   try {
-    const { user_id, mail, role } = req.user;
+    const { user_id } = req.user;
     const cart = req.cart;
     const items = await getCartItemsByCartId(cart.id);
     if (!items) {
@@ -301,7 +293,6 @@ app.post(
   async (req, res) => {
     try {
       const productId = req.body.product_id;
-      const { user_id } = req.user;
       const cart = req.cart;
       const success = await insertProductIntoCart(cart.id, productId);
       if (!success) {
@@ -331,16 +322,15 @@ app.put(
   attachCart,
   async (req, res) => {
     try {
-      const product_id = parseInt(req.params.productId);
-      const quantity = parseInt(req.body.quantity);
-      if (isNaN(product_id) || isNaN(quantity) || quantity < 1) {
+      const product_id = Number.parseInt(req.params.productId);
+      const quantity = Number.parseInt(req.body.quantity);
+      if (Number.isNaN(product_id) || Number.isNaN(quantity) || quantity < 1) {
         return res.status(400).json({
           status: "error",
           message: "Lack of data or incorrect",
           error: true,
         });
       }
-      const { user_id } = req.user;
       const cart = req.cart;
       const success = await updateProductQuantity(
         cart.id,
@@ -369,7 +359,6 @@ app.put(
 
 app.delete("/cart", checkUser, attachCart, async (req, res) => {
   try {
-    const { user_id } = req.user;
     const cart = req.cart;
     const success = await deleteAllCartItems(cart.id);
     if (!success) {
@@ -392,9 +381,8 @@ app.delete(
   validProductId,
   async (req, res) => {
     try {
-      const { user_id } = req.user;
       const cart = req.cart;
-      const product_id = parseInt(req.params.productId);
+      const product_id = Number.parseInt(req.params.productId);
       const success = await deleteProductFromCart(cart.id, product_id);
       if (!success) {
         return res
@@ -424,7 +412,7 @@ app.get("/admin/users", isAdmin, checkUser, async (req, res) => {
 
 app.get("/admin/users/:id", isAdmin, validId, async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number.parseInt(req.params.id);
     const data = await selectUserById(id);
     if (!data) {
       throw new Error("User " + id + " Not Found");
@@ -451,24 +439,32 @@ app.post("/admin/users", isAdmin, validUser, async (req, res) => {
   }
 });
 
-app.put("/admin/users/:id", isAdmin, validId, validUserUpdate, async (req, res) => {
-  try {
-    const id = parseInt(req.params.id);
-    const user = req.body;
-    // Note: password is NOT updated in PUT request
-    const response = await updateUserById(id, user);
-    if (!response) {
-      return res.status(404).json(getError("Not Found", "put", "user with id"));
+app.put(
+  "/admin/users/:id",
+  isAdmin,
+  validId,
+  validUserUpdate,
+  async (req, res) => {
+    try {
+      const id = Number.parseInt(req.params.id);
+      const user = req.body;
+      // Note: password is NOT updated in PUT request
+      const response = await updateUserById(id, user);
+      if (!response) {
+        return res
+          .status(404)
+          .json(getError("Not Found", "put", "user with id"));
+      }
+      res.status(200).json(getFeedback("updated"));
+    } catch (e) {
+      res.status(404).json(getError(e, "put", "user with id"));
     }
-    res.status(200).json(getFeedback("updated"));
-  } catch (e) {
-    res.status(404).json(getError(e, "put", "user with id"));
-  }
-});
+  },
+);
 
 app.delete("/admin/users/:id", isAdmin, validId, async (req, res) => {
   try {
-    const id = parseInt(req.params.id);
+    const id = Number.parseInt(req.params.id);
     const response = await deleteUserById(id);
     if (!response) {
       return res.status(404).json(getError("Not Found", "delete", "user"));
