@@ -10,10 +10,9 @@ const props = defineProps<{
 <template>
     <article>
         <div class="imgContainer">
-            <img class="mainImg" v-if="product.main_image" :src="product.main_image"
-                :alt="'Image of product: ' + product.name">
+            <img class="mainImg" v-if="product.main_image" :src="product.main_image" :alt="'product: ' + product.name">
             <img class="hoverImg" v-if="product.hover_image" :src="product.hover_image"
-                :alt="'Image of product: ' + product.name">
+                :alt="'product: ' + product.name">
         </div>
         <div class="textInfo">
             <h5 v-if="!editMode">
