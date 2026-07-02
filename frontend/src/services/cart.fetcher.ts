@@ -1,5 +1,4 @@
 const BASE_API_URL = import.meta.env.VITE_API_URL;
-//import type { Product } from "@/types/Product";
 
 /**
  * Gets all the cart items of the current logged user
