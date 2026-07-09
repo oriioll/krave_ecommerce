@@ -1,6 +1,14 @@
 {
     "rewrites": [
         {
+            "source": "/docs",
+            "destination": "https://krave-ecommerce-docs.vercel.app/docs"
+        },
+        {
+            "source": "/docs/:path*",
+            "destination": "https://krave-ecommerce-docs.vercel.app/docs/:path*"
+        },
+        {
             "source": "/(.*)",
             "destination": "/index.html"
         }
