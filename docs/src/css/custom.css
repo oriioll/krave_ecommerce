@@ -1,0 +1,174 @@
+@import url('https://fonts.googleapis.com/css2?family=Archivo:ital,wght@0,100..900;1,100..900&display=swap');
+
+@font-face {
+  font-family: 'Satoshi';
+  src: url('/fonts/satoshi.woff2') format('woff2');
+  font-weight: 100 900;
+  font-display: swap;
+  font-style: normal;
+}
+
+:root {
+  /* KRAVE Design System Tokens */
+  --krave-accent: #4A25E1;
+  --krave-success: #00FA65;
+  --krave-error: #FF2A42;
+  --krave-warning: #FFD600;
+  --krave-muted: #6B7280;
+  --krave-black: #09090B;
+  --krave-white: #FFFFFF;
+  --krave-light-gray: #c7c7c7c5;
+
+  /* Infima Primary Color (based on --krave-accent) */
+  --ifm-color-primary: var(--krave-accent);
+  --ifm-color-primary-dark: #3f1ec7;
+  --ifm-color-primary-darker: #3b1cbd;
+  --ifm-color-primary-darkest: #31179d;
+  --ifm-color-primary-light: #5b3ae4;
+  --ifm-color-primary-lighter: #6142e5;
+  --ifm-color-primary-lightest: #775be8;
+
+  /* Fonts & Global Properties matching frontend */
+  --ifm-font-family-base: 'Satoshi', sans-serif;
+  --ifm-font-family-monospace: SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+  
+  /* Layout borders and sizes matching frontend styles */
+  --ifm-global-border-radius: 3px;
+  --ifm-heading-font-weight: 800;
+  --ifm-heading-color: var(--krave-black);
+  
+  --ifm-background-color: var(--krave-white);
+  --ifm-font-color-base: var(--krave-black);
+  --ifm-navbar-background-color: var(--krave-white);
+
+  /* Sidebar and navigation variable mapping */
+  --ifm-menu-color: var(--krave-black);
+  --ifm-menu-color-active: var(--krave-accent);
+  --ifm-toc-link-color: var(--krave-black);
+  --ifm-navbar-link-color: var(--krave-black);
+  --ifm-navbar-link-color-active: var(--krave-accent);
+  --ifm-link-color: var(--krave-accent);
+
+  --docusaurus-highlighted-code-line-bg: rgba(74, 37, 225, 0.08);
+}
+
+/* Custom styles for matching KRAVE aesthetics */
+body {
+  font-family: var(--ifm-font-family-base);
+  background-color: var(--ifm-background-color);
+  color: var(--ifm-font-color-base);
+}
+
+.navbar {
+  border-bottom: 1px solid var(--krave-light-gray);
+  box-shadow: none;
+}
+
+.navbar__title {
+  font-family: 'Archivo', sans-serif;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: -0.03em;
+  font-size: 1.4rem;
+}
+
+/* Custom buttons */
+.button--secondary {
+  --ifm-button-background-color: var(--krave-accent);
+  --ifm-button-border-color: var(--krave-accent);
+  color: var(--krave-white);
+  border-radius: var(--ifm-global-border-radius);
+}
+
+.button--secondary:hover {
+  --ifm-button-background-color: #3f1ec7;
+  --ifm-button-border-color: #3f1ec7;
+}
+
+/* API Badge styles to display HTTP methods beautifully in docs */
+.api-badge {
+  display: inline-block;
+  padding: 0.2rem 0.6rem;
+  font-family: var(--ifm-font-family-monospace);
+  font-weight: bold;
+  font-size: 0.85rem;
+  border-radius: var(--ifm-global-border-radius);
+  margin-right: 0.5rem;
+  text-transform: uppercase;
+}
+
+.api-badge--get {
+  background-color: rgba(0, 250, 101, 0.12);
+  color: #008f37;
+  border: 1px solid rgba(0, 250, 101, 0.25);
+}
+
+.api-badge--post {
+  background-color: rgba(74, 37, 225, 0.1);
+  color: var(--krave-accent);
+  border: 1px solid rgba(74, 37, 225, 0.2);
+}
+
+.api-badge--put {
+  background-color: rgba(255, 214, 0, 0.12);
+  color: #a38900;
+  border: 1px solid rgba(255, 214, 0, 0.25);
+}
+
+.api-badge--delete {
+  background-color: rgba(255, 42, 66, 0.1);
+  color: var(--krave-error);
+  border: 1px solid rgba(255, 42, 66, 0.25);
+}
+
+/* Enforce black colors on left sidebar links and collapse carets */
+.menu__link {
+  color: var(--krave-black) !important;
+  font-family: 'Satoshi', sans-serif;
+  font-weight: 500;
+}
+
+.menu__link:hover {
+  color: var(--krave-accent) !important;
+  background-color: rgba(74, 37, 225, 0.04) !important;
+}
+
+.menu__link--active {
+  background-color: rgba(74, 37, 225, 0.08) !important;
+  color: var(--krave-accent) !important;
+  font-weight: 700 !important;
+}
+
+.menu__caret {
+  color: var(--krave-black) !important;
+}
+
+.menu__caret:hover {
+  color: var(--krave-accent) !important;
+  background-color: rgba(74, 37, 225, 0.04) !important;
+}
+
+.menu__link--sublist-caret::after {
+  filter: brightness(0) saturate(100%) invert(4%) sepia(13%) saturate(1518%) hue-rotate(201deg) brightness(95%) contrast(97%) !important; /* Force black */
+}
+
+
+/* Enforce black colors on right sidebar (Table of Contents) links */
+.table-of-contents__link {
+  color: var(--krave-muted) !important;
+}
+
+.table-of-contents__link:hover,
+.table-of-contents__link--active {
+  color: var(--krave-accent) !important;
+}
+
+/* Enforce black colors on navbar items */
+.navbar__item, .navbar__link {
+  color: var(--krave-black) !important;
+}
+
+.navbar__item:hover, .navbar__link:hover,
+.navbar__link--active {
+  color: var(--krave-accent) !important;
+}
