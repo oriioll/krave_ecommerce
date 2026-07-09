@@ -2,11 +2,11 @@
     "rewrites": [
         {
             "source": "/docs",
-            "destination": "https://krave-ecommerce-docs.vercel.app/docs"
+            "destination": "https://krave-ecommerce-docs.vercel.app"
         },
         {
             "source": "/docs/:path*",
-            "destination": "https://krave-ecommerce-docs.vercel.app/docs/:path*"
+            "destination": "https://krave-ecommerce-docs.vercel.app/:path*"
         },
         {
             "source": "/(.*)",
