@@ -16,6 +16,7 @@
 - 🎨 **Responsive UI** - Mobile-first design with Vue 3 components
 - 🔌 **REST API** - Complete API endpoints for products, users, cart, and auth operations
 - 🛡️ **Role-Based Access Control** - Three-tier roles (Admin, Staff, Customer) with granular permissions
+- 📄 **API Documentation** - Clean documentation of the app API REST made with Docusaurus ![](https://krave-ecommerce.vercel.app/docs)
 
 ---
 
